@@ -11,6 +11,35 @@
     "title": {
       "type": "string"
     },
+    "pae_number": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": "01"
+    },
+    "code": {
+      "type": "string"
+    },
+    "pae_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "service": {
+      "type": "string"
+    },
+    "bed_number": {
+      "type": "string"
+    },
+    "medical_record": {
+      "type": "string"
+    },
+    "admission_number": {
+      "type": "string"
+    },
+    "medical_diagnosis": {
+      "type": "string"
+    },
     "assessment": {
       "type": "string"
     },
@@ -22,10 +51,22 @@
           "nanda": {
             "type": "string"
           },
+          "code": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
           "related_to": {
             "type": "string"
           },
           "evidence": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "class": {
             "type": "string"
           }
         }
@@ -39,10 +80,19 @@
           "noc": {
             "type": "string"
           },
-          "indicator": {
+          "code": {
             "type": "string"
           },
-          "target": {
+          "indicators": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scale_initial": {
+            "type": "string"
+          },
+          "scale_expected": {
             "type": "string"
           }
         }
@@ -56,16 +106,28 @@
           "nic": {
             "type": "string"
           },
+          "code": {
+            "type": "string"
+          },
           "activities": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "rationale": {
+            "type": "string"
           }
         }
       }
     },
+    "execution": {
+      "type": "string"
+    },
     "evaluation": {
+      "type": "string"
+    },
+    "diana_score": {
       "type": "string"
     },
     "status": {
