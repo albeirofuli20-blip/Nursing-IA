@@ -1,0 +1,11 @@
+import { useState } from "react";
+import { Download, FileText, Pencil } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import PlanEditor from "@/components/pae/PlanEditor";
+import { exportPdf, exportWord } from "@/lib/exportPlan";
+
+export default function PlanCard({ plan, onChanged }) {
+  const [editing, setEditing] = useState(false);
+  return <article className="rounded-xl border border-slate-200 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><div className="flex items-center gap-2"><FileText className="h-4 w-4 text-violet-700" /><h3 className="font-semibold text-slate-900">{plan.title}</h3></div><p className="mt-1 text-xs text-slate-500">{plan.patient_name} · {plan.ai_generated ? "Borrador asistido por IA" : "Plan manual"}</p></div><select className="h-8 rounded-md border bg-white px-2 text-xs" value={plan.status} onChange={async e => { await base44.entities.CarePlan.update(plan.id, { status: e.target.value }); onChanged(); }}><option value="borrador">Borrador</option><option value="activo">Activo</option><option value="completado">Completado</option></select></div><p className="mt-3 line-clamp-3 text-sm text-slate-600">{plan.assessment}</p><div className="mt-3 flex flex-wrap gap-2"><span className="rounded-full bg-slate-100 px-2 py-1 text-xs">{plan.diagnoses?.length || 0} NANDA</span><span className="rounded-full bg-slate-100 px-2 py-1 text-xs">{plan.outcomes?.length || 0} NOC</span><span className="rounded-full bg-slate-100 px-2 py-1 text-xs">{plan.interventions?.length || 0} NIC</span></div><div className="mt-4 flex flex-wrap gap-2"><Button size="sm" onClick={() => setEditing(!editing)}><Pencil className="mr-1 h-3 w-3" />Editar</Button><Button size="sm" variant="outline" onClick={() => exportPdf(plan)}><Download className="mr-1 h-3 w-3" />PDF</Button><Button size="sm" variant="outline" onClick={() => exportWord(plan)}><Download className="mr-1 h-3 w-3" />Word</Button></div>{editing && <PlanEditor plan={plan} onSaved={() => { setEditing(false); onChanged(); }} onCancel={() => setEditing(false)} />}</article>;
+}

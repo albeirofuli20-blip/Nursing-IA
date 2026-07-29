@@ -1,0 +1,11 @@
+import { useState } from "react";
+import { UserPlus } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export default function UsersPanel({ users, refresh }) {
+  const [email, setEmail] = useState(""); const [role, setRole] = useState("user"); const [sending, setSending] = useState(false); const [message, setMessage] = useState("");
+  async function invite(e) { e.preventDefault(); setSending(true); setMessage(""); try { await base44.users.inviteUser(email, role); setEmail(""); setMessage("Invitación enviada correctamente."); refresh(); } catch { setMessage("No se pudo enviar la invitación."); } finally { setSending(false); } }
+  return <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="mb-5"><h2 className="text-xl font-bold text-slate-900">Usuarios y roles</h2><p className="text-sm text-slate-500">Invita profesionales y controla sus permisos.</p></div><form onSubmit={invite} className="mb-5 flex flex-col gap-2 rounded-xl bg-teal-50 p-4 sm:flex-row"><Input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="correo@institucion.com" /><select className="h-10 rounded-md border bg-white px-3 text-sm" value={role} onChange={e => setRole(e.target.value)}><option value="user">Enfermero/a</option><option value="admin">Administrador</option></select><Button disabled={sending} className="bg-teal-700 hover:bg-teal-800"><UserPlus className="mr-2 h-4 w-4" />{sending ? "Enviando…" : "Invitar"}</Button></form>{message && <p className="mb-3 text-sm text-slate-600">{message}</p>}<div className="divide-y">{users.map(user => <div key={user.id} className="flex items-center justify-between gap-4 py-3"><div><p className="font-medium text-slate-900">{user.full_name || "Usuario invitado"}</p><p className="text-xs text-slate-500">{user.email}</p></div><select className="h-8 rounded-md border bg-white px-2 text-xs" value={user.role} onChange={async e => { const next = e.target.value; await base44.entities.User.update(user.id, { role: next, professional_role: next === "admin" ? "administrador" : "enfermero" }); refresh(); }}><option value="user">Enfermero/a</option><option value="admin">Administrador</option></select></div>)}</div></section>;
+}

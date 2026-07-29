@@ -1,0 +1,6 @@
+import { BookOpen, ExternalLink } from "lucide-react";
+
+export default function GuideList({ guides }) {
+  if (!guides.length) return <p className="py-8 text-center text-sm text-slate-500">No hay guías cargadas.</p>;
+  return <div className="grid gap-3 md:grid-cols-2">{guides.map(guide => <article key={guide.id} className="rounded-xl border border-slate-200 p-4"><div className="flex items-start gap-3"><div className="rounded-lg bg-emerald-50 p-2 text-emerald-700"><BookOpen className="h-4 w-4" /></div><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold text-slate-900">{guide.title}</h3><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${guide.status === "vigente" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{guide.status}</span></div><p className="text-xs text-slate-500">{guide.source || "Fuente interna"} · {guide.version_date || "Sin fecha"}</p><p className="mt-2 line-clamp-3 text-sm text-slate-600">{guide.content}</p>{guide.source_url && <a className="mt-2 inline-flex items-center text-xs font-medium text-teal-700" href={guide.source_url} target="_blank" rel="noreferrer">Ver fuente <ExternalLink className="ml-1 h-3 w-3" /></a>}</div></div></article>)}</div>;
+}

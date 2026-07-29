@@ -1,0 +1,17 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "professional_role": {
+      "type": "string",
+      "enum": [
+        "enfermero",
+        "administrador"
+      ],
+      "default": "enfermero"
+    },
+    "license_number": {
+      "type": "string"
+    }
+  }
+}
