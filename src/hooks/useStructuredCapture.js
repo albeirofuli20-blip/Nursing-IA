@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { SCALES } from "@/lib/scales";
 
 export default function useStructuredCapture(onSaved) {
   const [loading, setLoading] = useState(false);
@@ -10,11 +11,31 @@ export default function useStructuredCapture(onSaved) {
     setError("");
     try {
       const context = guides.slice(0, 5).map((g) => `${g.title}: ${g.content}`).join("\n");
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Actúa como asistente clínico de enfermería especializado. Analiza la siguiente valoración estructurada y genera mínimo 4 Planes de Atención de Enfermería (PAE) independientes, basados en las taxonomías NANDA-I, NOC y NIC. No inventes información ni signos que no estén en los datos. Si faltan datos críticos para un diagnóstico, omítelo. Cada PAE debe ser independiente y completo.
+      const paeType = (captureData.pae_type || "intrahospitalario").toLowerCase() === "comunitario" ? "comunitario" : "intrahospitalario";
+      const scales = captureData.scales || {};
+      const scalesSummary = Object.keys(scales).length > 0
+        ? Object.entries(scales).map(([key, val]) => `${SCALES[key]?.name || key}: ${val.score} puntos (${val.interpretation})`).join("\n")
+        : "No se aplicaron escalas en esta valoración.";
 
-Datos de valoración estructurada:
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Actúa como enfermero especialista en Proceso de Atención de Enfermería (PAE), NANDA-I, NOC, NIC, seguridad del paciente y valoración clínica hospitalaria y comunitaria.
+
+Tipo de PAE: ${paeType}
+
+Analiza la siguiente valoración estructurada y genera mínimo 4 Planes de Atención de Enfermería (PAE) independientes, basados en NANDA-I, NOC y NIC. No inventes información ni signos que no estén en los datos. Si faltan datos críticos para un diagnóstico, omítelo. Cada PAE debe ser independiente y completo.
+
+INSTRUCCIONES SOBRE ESCALAS DE VALORACIÓN:
+- Utiliza los resultados de las escalas para identificar riesgos, priorizar problemas, generar diagnósticos NANDA, recomendar intervenciones NIC y evaluar la respuesta al tratamiento.
+- Interpreta clínicamente cada escala: no te limites al puntaje. Relaciona el resultado con la evolución del paciente y con NANDA, NOC y NIC.
+- Para cada PAE, indica qué escalas sustentan el diagnóstico y los resultados esperados (escala inicial vs escala esperada).
+- Si es PAE comunitario, prioriza promoción de la salud, educación al paciente y cuidador, adherencia terapéutica y seguimiento en el domicilio.
+- Si es PAE intrahospitalario, prioriza seguridad del paciente, prevención de riesgos (UPP, caídas, dolor) y cuidado agudo.
+
+Datos de valoración estructurada (incluye los 11 patrones funcionales de Gordon):
 ${JSON.stringify(captureData, null, 2)}
+
+Escalas aplicadas y resultados:
+${scalesSummary}
 
 Guías clínicas disponibles:
 ${context}
@@ -26,11 +47,12 @@ Para cada PAE genera:
 4. Diagnósticos NANDA-I: código, dominio, clase, definición, factores relacionados o de riesgo, características definitorias
 5. Resultados NOC: código, indicadores, escala inicial y esperada (1-5)
 6. Intervenciones NIC: código, actividades detalladas, fundamentación científica
-7. Ejecución: plan de implementación
-8. Evaluación: criterios de evaluación
-9. Educación al paciente y cuidador
-10. Recomendaciones para el seguimiento
-11. Puntuación DIANA si aplica
+7. Escalas aplicadas: nombre, puntuación, interpretación y relación con el diagnóstico
+8. Ejecución: plan de implementación
+9. Evaluación: criterios de evaluación incluyendo comparación de escalas inicial vs esperada
+10. Educación al paciente y cuidador
+11. Recomendaciones para el seguimiento
+12. Puntuación DIANA si aplica
 
 Genera todos los PAE que la valoración justifique, mínimo 4.`,
         response_json_schema: {
@@ -88,7 +110,18 @@ Genera todos los PAE que la valoración justifique, mínimo 4.`,
                   evaluation: { type: "string" },
                   patient_education: { type: "string" },
                   follow_up: { type: "string" },
-                  diana_score: { type: "string" }
+                  diana_score: { type: "string" },
+                  scale_assessments: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        scale: { type: "string" },
+                        score: { type: "string" },
+                        interpretation: { type: "string" }
+                      }
+                    }
+                  }
                 },
                 required: ["title", "assessment", "diagnoses", "outcomes", "interventions"]
               }
@@ -105,6 +138,7 @@ Genera todos los PAE que la valoración justifique, mínimo 4.`,
             ...plan,
             patient_id: patient.id,
             patient_name: patient.full_name,
+            pae_type: paeType,
             status: "borrador",
             ai_generated: true
           })

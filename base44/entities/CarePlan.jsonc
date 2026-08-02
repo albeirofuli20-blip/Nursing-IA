@@ -11,6 +11,14 @@
     "title": {
       "type": "string"
     },
+    "pae_type": {
+      "type": "string",
+      "enum": [
+        "comunitario",
+        "intrahospitalario"
+      ],
+      "default": "intrahospitalario"
+    },
     "pae_number": {
       "type": "string"
     },
@@ -116,6 +124,23 @@
             }
           },
           "rationale": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scale_assessments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scale": {
+            "type": "string"
+          },
+          "score": {
+            "type": "string"
+          },
+          "interpretation": {
             "type": "string"
           }
         }

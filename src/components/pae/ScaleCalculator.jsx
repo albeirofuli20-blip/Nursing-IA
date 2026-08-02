@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Activity, RotateCcw } from "lucide-react";
 import { SCALES } from "@/lib/scales";
 import { Button } from "@/components/ui/button";
 
-export default function ScaleCalculator({ scaleKey }) {
+export default function ScaleCalculator({ scaleKey, onScoreChange }) {
   const scale = SCALES[scaleKey];
   const [values, setValues] = useState({});
   const [evaValue, setEvaValue] = useState(0);
   const score = scale.single ? evaValue : Object.values(values).reduce((sum, v) => sum + (Number(v) || 0), 0);
   const interpretation = scale.interpret(score);
   const reset = () => { setValues({}); setEvaValue(0); };
+
+  useEffect(() => { onScoreChange?.(score, interpretation); }, [score, interpretation, onScoreChange]);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

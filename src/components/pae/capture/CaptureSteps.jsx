@@ -4,6 +4,9 @@ export function Step1Identification({ data, set }) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-500">Datos de identificación del paciente.</p>
+      <div className="mb-3 sm:max-w-xs">
+        <LabeledSelect label="Tipo de PAE" value={data.pae_type} onChange={(v) => set("pae_type", v)} options={["Intrahospitalario", "Comunitario"]} />
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <LabeledInput label="Nombre o código" value={data.code} onChange={(v) => set("code", v)} placeholder="Ej. P-001" />
         <LabeledInput label="Nombre completo" value={data.full_name} onChange={(v) => set("full_name", v)} placeholder="Nombre del paciente" />
@@ -95,11 +98,20 @@ export function Step5Objective({ data, set }) {
 export function Step6Assessment({ data, set }) {
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-500">Valoración de enfermería estructurada.</p>
-      <div className="space-y-4">
-        <LabeledTextarea label="Patrones funcionales de Gordon" value={data.gordon_patterns} onChange={(v) => set("gordon_patterns", v)} rows={4} placeholder="Hallazgos por los 11 patrones..." />
-        <LabeledTextarea label="Necesidades de Henderson" value={data.henderson_needs} onChange={(v) => set("henderson_needs", v)} rows={4} placeholder="Hallazgos por las 14 necesidades..." />
-        <LabeledInput label="Escalas clínicas aplicadas" value={data.clinical_scales} onChange={(v) => set("clinical_scales", v)} placeholder="Ej. Braden 12, Glasgow 14, Barthel 60" />
+      <p className="text-sm text-slate-500">Patrones funcionales de Gordon — valora cada uno de los 11 patrones de forma estructurada.</p>
+      <div className="space-y-3">
+        <LabeledTextarea label="1. Percepción-manejo de la salud" value={data.pattern_health} onChange={(v) => set("pattern_health", v)} rows={2} placeholder="Percepción de salud, hábitos, cumplimiento terapéutico..." />
+        <LabeledTextarea label="2. Nutricional-metabólico" value={data.pattern_nutritional} onChange={(v) => set("pattern_nutritional", v)} rows={2} placeholder="Dieta, apetito, peso, mucosas, hidratación..." />
+        <LabeledTextarea label="3. Eliminación" value={data.pattern_elimination} onChange={(v) => set("pattern_elimination", v)} rows={2} placeholder="Patrón intestinal y vesical, regularidad, cambios..." />
+        <LabeledTextarea label="4. Actividad-ejercicio" value={data.pattern_activity} onChange={(v) => set("pattern_activity", v)} rows={2} placeholder="Capacidad funcional, ejercicio, tolerancia, deambulación..." />
+        <LabeledTextarea label="5. Sueño-descanso" value={data.pattern_sleep} onChange={(v) => set("pattern_sleep", v)} rows={2} placeholder="Horas de sueño, calidad, insomnio, descanso..." />
+        <LabeledTextarea label="6. Cognitivo-perceptual" value={data.pattern_cognitive} onChange={(v) => set("pattern_cognitive", v)} rows={2} placeholder="Memoria, orientación, percepción, dolor, sentidos..." />
+        <LabeledTextarea label="7. Autopercepción-autoconcepto" value={data.pattern_self_perception} onChange={(v) => set("pattern_self_perception", v)} rows={2} placeholder="Autoestima, imagen corporal, estado emocional..." />
+        <LabeledTextarea label="8. Rol-relaciones" value={data.pattern_roles} onChange={(v) => set("pattern_roles", v)} rows={2} placeholder="Familia, trabajo, relaciones sociales, apoyo..." />
+        <LabeledTextarea label="9. Sexualidad-reproducción" value={data.pattern_sexuality} onChange={(v) => set("pattern_sexuality", v)} rows={2} placeholder="Patrón sexual, reproducción, cambios..." />
+        <LabeledTextarea label="10. Adaptación-tolerancia al estrés" value={data.pattern_stress} onChange={(v) => set("pattern_stress", v)} rows={2} placeholder="Mecanismos de afrontamiento, estrés, ansiedad..." />
+        <LabeledTextarea label="11. Valores-creencias" value={data.pattern_values} onChange={(v) => set("pattern_values", v)} rows={2} placeholder="Creencias religiosas, valores espirituales, prácticas..." />
+        <LabeledTextarea label="Necesidades de Henderson" value={data.henderson_needs} onChange={(v) => set("henderson_needs", v)} rows={3} placeholder="Hallazgos por las 14 necesidades..." />
         <LabeledInput label="Laboratorios" value={data.labs} onChange={(v) => set("labs", v)} placeholder="Ej. Hb 7.2, glucemia 185" />
         <LabeledInput label="Estudios diagnósticos relevantes" value={data.diagnostic_studies} onChange={(v) => set("diagnostic_studies", v)} placeholder="Ej. RX tórax, ecografía" />
       </div>
