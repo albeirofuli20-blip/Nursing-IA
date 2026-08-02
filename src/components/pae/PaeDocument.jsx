@@ -38,6 +38,10 @@ export default function PaeDocument({ plan, patient, onBack }) {
           <div className="border border-slate-300 md:border-l-0"><SectionBar>Evaluación</SectionBar><div className="min-h-24 p-2 text-xs text-slate-700">{plan.evaluation || "—"}</div></div>
         </div>
         <div className="mt-4 border border-slate-300"><SectionBar>Indicadores / Escala de Medición / Puntuación Diana</SectionBar><div className="p-2 text-xs text-slate-700"><ul className="ml-4 list-disc">{(plan.outcomes || []).map((o, i) => <li key={i}>{o.noc}: Inicial {o.scale_initial || "—"} → Esperada {o.scale_expected || "—"}</li>)}</ul><p className="mt-2 font-bold text-slate-900">Puntuación Diana: {plan.diana_score || "—"}</p></div></div>
+        <div className="mt-4 grid gap-0 md:grid-cols-2">
+          <div className="border border-slate-300"><SectionBar>Educación al Paciente y Cuidador</SectionBar><div className="min-h-24 p-2 text-xs text-slate-700">{plan.patient_education || "—"}</div></div>
+          <div className="border border-slate-300 md:border-l-0"><SectionBar>Recomendaciones de Seguimiento</SectionBar><div className="min-h-24 p-2 text-xs text-slate-700">{plan.follow_up || "—"}</div></div>
+        </div>
       </div>
     </div>
   </div>;

@@ -39,7 +39,9 @@ export function exportPaePdf(plan, patient) {
   y = Math.max(y1, y2, y3) + 4;
   y = bar(doc, "EJECUCIÓN", 15, y) + 1; doc.setDrawColor(180, 180, 180); doc.rect(15, y, 90, 20); y = text(doc, plan.execution || "—", 17, y + 5, { maxWidth: 86 }) + 2;
   const yEval = bar(doc, "EVALUACIÓN", 105, y - 7); doc.setDrawColor(180, 180, 180); doc.rect(105, yEval, 90, 20); text(doc, plan.evaluation || "—", 107, yEval + 5, { maxWidth: 86 });
-  y += 24; y = bar(doc, "INDICADORES / ESCALA DE MEDICIÓN / PUNTUACIÓN DIANA", 15, y) + 1; doc.setDrawColor(180, 180, 180); doc.rect(15, y, 180, 16); let yInd = y + 5; (plan.outcomes || []).forEach(o => { yInd = text(doc, `• ${o.noc}: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}`, 17, yInd, { maxWidth: 176, lineHeight: 4 }); }); yInd = text(doc, `Puntuación Diana: ${plan.diana_score || "—"}`, 17, yInd + 1, { maxWidth: 176, lineHeight: 4 });
+  y += 24; y = bar(doc, "INDICADORES / ESCALA DE MEDICIÓN / PUNTUACIÓN DIANA", 15, y) + 1; doc.setDrawColor(180, 180, 180); doc.rect(15, y, 180, 16); let yInd = y + 5; (plan.outcomes || []).forEach(o => { yInd = text(doc, `• ${o.noc}: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}`, 17, yInd, { maxWidth: 176, lineHeight: 4 }); }); yInd = text(doc, `Puntuación Diana: ${plan.diana_score || "—"}`, 17, yInd + 1, { maxWidth: 176, lineHeight: 4 }); y = yInd + 4;
+  y = bar(doc, "EDUCACIÓN AL PACIENTE Y CUIDADOR", 15, y) + 1; doc.setDrawColor(180, 180, 180); doc.rect(15, y, 180, 16); y = text(doc, plan.patient_education || "—", 17, y + 5, { maxWidth: 176 }) + 4;
+  y = bar(doc, "RECOMENDACIONES DE SEGUIMIENTO", 15, y) + 1; doc.setDrawColor(180, 180, 180); doc.rect(15, y, 180, 16); text(doc, plan.follow_up || "—", 17, y + 5, { maxWidth: 176 });
   doc.save(`PAE-${plan.pae_number || ""}-${plan.patient_name}.pdf`);
 }
 
@@ -60,6 +62,8 @@ export function exportPaeWord(plan, patient) {
   <h4 style="color:#4d8033">Ejecución</h4><p>${plan.execution || "—"}</p>
   <h4 style="color:#4d8033">Evaluación</h4><p>${plan.evaluation || "—"}</p>
   <h4 style="color:#4d8033">Puntuación Diana</h4><p>${plan.diana_score || "—"}</p>
+  <h4 style="color:#4d8033">Educación al Paciente y Cuidador</h4><p>${plan.patient_education || "—"}</p>
+  <h4 style="color:#4d8033">Recomendaciones de Seguimiento</h4><p>${plan.follow_up || "—"}</p>
   </body></html>`;
   const blob = new Blob([html], { type: "application/msword" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `PAE-${plan.pae_number || ""}-${plan.patient_name}.doc`; link.click(); URL.revokeObjectURL(link.href);
 }

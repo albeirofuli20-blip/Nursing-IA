@@ -127,6 +127,12 @@
     "evaluation": {
       "type": "string"
     },
+    "patient_education": {
+      "type": "string"
+    },
+    "follow_up": {
+      "type": "string"
+    },
     "diana_score": {
       "type": "string"
     },

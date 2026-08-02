@@ -1,0 +1,108 @@
+import { LabeledInput, LabeledTextarea, LabeledSelect } from "@/components/pae/capture/CaptureFields";
+
+export function Step1Identification({ data, set }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-slate-500">Datos de identificación del paciente.</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <LabeledInput label="Nombre o código" value={data.code} onChange={(v) => set("code", v)} placeholder="Ej. P-001" />
+        <LabeledInput label="Nombre completo" value={data.full_name} onChange={(v) => set("full_name", v)} placeholder="Nombre del paciente" />
+        <LabeledInput label="Edad" value={data.age} onChange={(v) => set("age", v)} placeholder="Años" />
+        <LabeledSelect label="Sexo" value={data.sex} onChange={(v) => set("sex", v)} options={["Femenino", "Masculino", "Otro", "No especificado"]} />
+        <LabeledInput label="Peso (kg)" value={data.weight} onChange={(v) => set("weight", v)} placeholder="Ej. 70" />
+        <LabeledInput label="Talla (cm)" value={data.height} onChange={(v) => set("height", v)} placeholder="Ej. 165" />
+        <LabeledInput label="Servicio" value={data.service} onChange={(v) => set("service", v)} placeholder="Ej. Hospitalización" />
+        <LabeledInput label="Fecha" type="date" value={data.date} onChange={(v) => set("date", v)} />
+        <LabeledSelect label="Zona" value={data.zone} onChange={(v) => set("zone", v)} options={["Urbana", "Rural"]} />
+        <LabeledSelect label="¿Está acompañado?" value={data.accompanied} onChange={(v) => set("accompanied", v)} options={["Sí", "No"]} />
+        <LabeledInput label="Nombre del acompañante" value={data.companion_name} onChange={(v) => set("companion_name", v)} placeholder="Nombre" />
+        <LabeledInput label="Parentesco" value={data.kinship} onChange={(v) => set("kinship", v)} placeholder="Ej. Hija" />
+      </div>
+    </div>
+  );
+}
+
+export function Step2Social({ data, set }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-slate-500">Determinantes sociales de la salud.</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <LabeledInput label="Tipo de vivienda" value={data.housing_type} onChange={(v) => set("housing_type", v)} placeholder="Ej. Casa de ladrillo" />
+        <LabeledSelect label="Agua potable" value={data.potable_water} onChange={(v) => set("potable_water", v)} options={["Sí", "No"]} />
+        <LabeledSelect label="Energía eléctrica" value={data.electricity} onChange={(v) => set("electricity", v)} options={["Sí", "No"]} />
+        <LabeledSelect label="Alcantarillado" value={data.sewage} onChange={(v) => set("sewage", v)} options={["Sí", "No"]} />
+        <LabeledSelect label="Recolección de residuos" value={data.waste_collection} onChange={(v) => set("waste_collection", v)} options={["Sí", "No"]} />
+        <LabeledInput label="Acceso a servicios de salud" value={data.health_access} onChange={(v) => set("health_access", v)} placeholder="Ej. Centro de salud cercano" />
+        <LabeledInput label="Apoyo familiar" value={data.family_support} onChange={(v) => set("family_support", v)} placeholder="Ej. Bueno, regular, nulo" />
+        <LabeledInput label="Condición socioeconómica" value={data.socioeconomic} onChange={(v) => set("socioeconomic", v)} placeholder="Ej. Media-baja" />
+        <LabeledInput label="Adherencia al tratamiento" value={data.treatment_adherence} onChange={(v) => set("treatment_adherence", v)} placeholder="Ej. Buena, irregular" />
+        <LabeledTextarea label="¿Toma correctamente los medicamentos?" value={data.medication_taking} onChange={(v) => set("medication_taking", v)} rows={2} />
+        <div className="sm:col-span-2"><LabeledTextarea label="Barreras para el cuidado" value={data.care_barriers} onChange={(v) => set("care_barriers", v)} rows={2} /></div>
+      </div>
+    </div>
+  );
+}
+
+export function Step3Clinical({ data, set }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-slate-500">Información clínica del paciente.</p>
+      <div className="space-y-4">
+        <LabeledTextarea label="Motivo de consulta" value={data.reason_consultation} onChange={(v) => set("reason_consultation", v)} />
+        <LabeledInput label="Diagnóstico médico" value={data.medical_diagnosis} onChange={(v) => set("medical_diagnosis", v)} placeholder="Ej. Diabetes tipo 2" />
+        <LabeledTextarea label="Enfermedad actual" value={data.current_illness} onChange={(v) => set("current_illness", v)} />
+        <LabeledTextarea label="Antecedentes" value={data.history} onChange={(v) => set("history", v)} />
+        <LabeledTextarea label="Medicamentos" value={data.medications} onChange={(v) => set("medications", v)} />
+        <LabeledInput label="Alergias" value={data.allergies} onChange={(v) => set("allergies", v)} placeholder="Ej. Penicilina, ninguna" />
+      </div>
+    </div>
+  );
+}
+
+export function Step4Subjective({ data, set }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-slate-500">Datos subjetivos expresados por el paciente.</p>
+      <div className="space-y-4">
+        <LabeledInput label="Dolor" value={data.pain} onChange={(v) => set("pain", v)} placeholder="Ej. EVA 6/10, lumbar" />
+        <LabeledInput label="Molestias" value={data.discomfort} onChange={(v) => set("discomfort", v)} placeholder="Ej. Náuseas" />
+        <LabeledTextarea label="Síntomas" value={data.symptoms} onChange={(v) => set("symptoms", v)} />
+        <LabeledTextarea label="Necesidades" value={data.needs} onChange={(v) => set("needs", v)} />
+        <LabeledTextarea label="Preocupaciones" value={data.concerns} onChange={(v) => set("concerns", v)} />
+        <LabeledTextarea label="Manifestaciones verbales" value={data.verbal_manifestations} onChange={(v) => set("verbal_manifestations", v)} placeholder="Frases textuales del paciente" />
+      </div>
+    </div>
+  );
+}
+
+export function Step5Objective({ data, set }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-slate-500">Datos objetivos hallados en la valoración.</p>
+      <div className="space-y-4">
+        <LabeledTextarea label="Signos vitales" value={data.vital_signs} onChange={(v) => set("vital_signs", v)} placeholder="Ej. TA 140/85, FC 92, FR 20, T 37.2" />
+        <LabeledTextarea label="Valoración física" value={data.physical_assessment} onChange={(v) => set("physical_assessment", v)} />
+        <LabeledTextarea label="Hallazgos clínicos" value={data.clinical_findings} onChange={(v) => set("clinical_findings", v)} />
+        <LabeledInput label="Dispositivos" value={data.devices} onChange={(v) => set("devices", v)} placeholder="Ej. Sonda vesical, catéter IV" />
+        <LabeledInput label="Heridas" value={data.wounds} onChange={(v) => set("wounds", v)} placeholder="Ej. Herida quirúrgica limpia" />
+        <LabeledInput label="Edemas" value={data.edema} onChange={(v) => set("edema", v)} placeholder="Ej. Edema en MMII" />
+        <LabeledInput label="Otros hallazgos" value={data.other_findings} onChange={(v) => set("other_findings", v)} />
+      </div>
+    </div>
+  );
+}
+
+export function Step6Assessment({ data, set }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-slate-500">Valoración de enfermería estructurada.</p>
+      <div className="space-y-4">
+        <LabeledTextarea label="Patrones funcionales de Gordon" value={data.gordon_patterns} onChange={(v) => set("gordon_patterns", v)} rows={4} placeholder="Hallazgos por los 11 patrones..." />
+        <LabeledTextarea label="Necesidades de Henderson" value={data.henderson_needs} onChange={(v) => set("henderson_needs", v)} rows={4} placeholder="Hallazgos por las 14 necesidades..." />
+        <LabeledInput label="Escalas clínicas aplicadas" value={data.clinical_scales} onChange={(v) => set("clinical_scales", v)} placeholder="Ej. Braden 12, Glasgow 14, Barthel 60" />
+        <LabeledInput label="Laboratorios" value={data.labs} onChange={(v) => set("labs", v)} placeholder="Ej. Hb 7.2, glucemia 185" />
+        <LabeledInput label="Estudios diagnósticos relevantes" value={data.diagnostic_studies} onChange={(v) => set("diagnostic_studies", v)} placeholder="Ej. RX tórax, ecografía" />
+      </div>
+    </div>
+  );
+}
