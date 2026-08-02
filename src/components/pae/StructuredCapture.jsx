@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Check, Sparkles, UserPlus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -17,13 +17,20 @@ const STEPS = [
 
 const STEP_COMPONENTS = { 1: Step1Identification, 2: Step2Social, 3: Step3Clinical, 4: Step4Subjective, 5: Step5Objective, 6: Step6Assessment };
 
-export default function StructuredCapture({ patients, guides, onSaved }) {
+export default function StructuredCapture({ patients, guides, onSaved, preselectedPatientId }) {
   const [step, setStep] = useState(1);
   const [data, setData] = useState({});
   const [patientMode, setPatientMode] = useState("existing");
-  const [existingPatientId, setExistingPatientId] = useState("");
+  const [existingPatientId, setExistingPatientId] = useState(preselectedPatientId || "");
   const [generated, setGenerated] = useState(null);
   const { generate, loading, error } = useStructuredCapture((plans) => { setGenerated(plans); onSaved(); });
+
+  useEffect(() => {
+    if (preselectedPatientId) {
+      setPatientMode("existing");
+      setExistingPatientId(preselectedPatientId);
+    }
+  }, [preselectedPatientId]);
 
   const set = (key, val) => setData((d) => ({ ...d, [key]: val }));
 
