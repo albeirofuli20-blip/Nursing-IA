@@ -3,8 +3,8 @@ import { ChevronLeft, ChevronRight, Check, Sparkles, UserPlus, FileText } from "
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import useStructuredCapture from "@/hooks/useStructuredCapture";
-import { Step1Identification, Step2Social, Step3Clinical, Step4Subjective, Step5Objective, Step6Assessment } from "@/components/pae/capture/CaptureSteps";
-import { Step7Scales } from "@/components/pae/capture/Step7Scales";
+import { Step1Identification, Step2Social, Step3Clinical, Step4Subjective, Step5Objective } from "@/components/pae/capture/CaptureSteps";
+import { Step6Valoracion } from "@/components/pae/capture/Step6Valoracion";
 
 const STEPS = [
   { id: 1, name: "Identificación" },
@@ -12,12 +12,11 @@ const STEPS = [
   { id: 3, name: "Información clínica" },
   { id: 4, name: "Datos subjetivos" },
   { id: 5, name: "Datos objetivos" },
-  { id: 6, name: "Patrones funcionales" },
-  { id: 7, name: "Escalas" },
-  { id: 8, name: "Revisión" }
+  { id: 6, name: "Valoración de enfermería" },
+  { id: 7, name: "Revisión" }
 ];
 
-const STEP_COMPONENTS = { 1: Step1Identification, 2: Step2Social, 3: Step3Clinical, 4: Step4Subjective, 5: Step5Objective, 6: Step6Assessment, 7: Step7Scales };
+const STEP_COMPONENTS = { 1: Step1Identification, 2: Step2Social, 3: Step3Clinical, 4: Step4Subjective, 5: Step5Objective, 6: Step6Valoracion };
 
 export default function StructuredCapture({ patients, guides, onSaved, preselectedPatientId }) {
   const [step, setStep] = useState(1);
@@ -94,10 +93,10 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
       )}
 
       {/* Step content */}
-      {step < 8 && CurrentStep && <CurrentStep data={data} set={set} />}
+      {step < 7 && CurrentStep && <CurrentStep data={data} set={set} />}
 
       {/* Review step */}
-      {step === 8 && !generated && (
+      {step === 7 && !generated && (
         <div className="space-y-4">
           <p className="text-sm text-slate-500">Revisa la información antes de generar los PAE. Puedes volver a cualquier módulo para corregir.</p>
           <div className="max-h-96 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -131,12 +130,12 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
       )}
 
       {/* Navigation */}
-      {step < 8 && !generated && (
+      {step < 7 && !generated && (
         <div className="mt-6 flex justify-between">
           <Button variant="ghost" onClick={() => setStep((s) => Math.max(1, s - 1))} disabled={step === 1}>
             <ChevronLeft className="h-4 w-4" />Anterior
           </Button>
-          <Button onClick={() => setStep((s) => Math.min(8, s + 1))} className="bg-[#002D62] hover:bg-[#001f4d]">
+          <Button onClick={() => setStep((s) => Math.min(7, s + 1))} className="bg-[#002D62] hover:bg-[#001f4d]">
             Siguiente<ChevronRight className="h-4 w-4" />
           </Button>
         </div>
