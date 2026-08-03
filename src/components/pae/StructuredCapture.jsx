@@ -18,10 +18,10 @@ const STEPS = [
 
 const STEP_COMPONENTS = { 1: Step1Identification, 2: Step2Social, 3: Step3Clinical, 4: Step4Subjective, 5: Step5Objective, 6: Step6Valoracion };
 
-export default function StructuredCapture({ patients, guides, onSaved, preselectedPatientId }) {
+export default function StructuredCapture({ patients, guides, onSaved, preselectedPatientId, forceNewPatient }) {
   const [step, setStep] = useState(1);
   const [data, setData] = useState({});
-  const [patientMode, setPatientMode] = useState("existing");
+  const [patientMode, setPatientMode] = useState(forceNewPatient ? "new" : "existing");
   const [existingPatientId, setExistingPatientId] = useState(preselectedPatientId || "");
   const [generated, setGenerated] = useState(null);
   const { generate, loading, error } = useStructuredCapture((plans) => { setGenerated(plans); onSaved(); });
@@ -59,7 +59,7 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
     <div className="rounded-2xl border border-[#00A8B5]/30 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2 text-[#002D62]">
         <Sparkles className="h-5 w-5" />
-        <h3 className="font-semibold">Captura estructurada para generación de PAE</h3>
+        <h3 className="font-semibold">{forceNewPatient ? "Registrar nuevo paciente y generar PAE" : "Captura estructurada para generación de PAE"}</h3>
       </div>
 
       {/* Progress */}
@@ -76,13 +76,13 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
       </div>
 
       {/* Patient mode selector (step 1 only) */}
-      {step === 1 && (
+      {step === 1 && !forceNewPatient && (
         <div className="mb-4 flex gap-2 rounded-lg bg-slate-50 p-2">
           <button onClick={() => setPatientMode("existing")} className={`flex-1 rounded-md px-3 py-2 text-sm font-medium ${patientMode === "existing" ? "bg-[#002D62] text-white" : "text-slate-600"}`}>Paciente existente</button>
           <button onClick={() => setPatientMode("new")} className={`flex-1 rounded-md px-3 py-2 text-sm font-medium ${patientMode === "new" ? "bg-[#002D62] text-white" : "text-slate-600"}`}><UserPlus className="mr-1 inline h-3.5 w-3.5" />Nuevo paciente</button>
         </div>
       )}
-      {step === 1 && patientMode === "existing" && (
+      {step === 1 && patientMode === "existing" && !forceNewPatient && (
         <div className="mb-4">
           <label className="text-xs font-semibold text-slate-600">Selecciona el paciente</label>
           <select value={existingPatientId} onChange={(e) => setExistingPatientId(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-sm">
