@@ -1,0 +1,76 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "login",
+        "logout",
+        "create_patient",
+        "update_patient",
+        "delete_patient",
+        "create_pae",
+        "update_pae",
+        "delete_pae",
+        "ai_generate",
+        "ai_chat",
+        "config_change",
+        "user_invite",
+        "export_data",
+        "role_change"
+      ]
+    },
+    "entity_type": {
+      "type": "string"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "action",
+    "description"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

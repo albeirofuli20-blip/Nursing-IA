@@ -1,0 +1,96 @@
+{
+  "name": "AiConfig",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": [
+        "base44",
+        "abacus"
+      ],
+      "default": "base44"
+    },
+    "abacus_api_key": {
+      "type": "string"
+    },
+    "abacus_endpoint": {
+      "type": "string",
+      "default": "https://api.abacus.ai/api/v1"
+    },
+    "abacus_model_id": {
+      "type": "string"
+    },
+    "default_model": {
+      "type": "string",
+      "default": "automatic"
+    },
+    "prompt_pae": {
+      "type": "string"
+    },
+    "prompt_nanda": {
+      "type": "string"
+    },
+    "prompt_chat": {
+      "type": "string"
+    },
+    "prompt_evolution": {
+      "type": "string"
+    },
+    "prompt_educational": {
+      "type": "string"
+    },
+    "max_tokens_per_request": {
+      "type": "number",
+      "default": 8000
+    },
+    "monthly_token_limit": {
+      "type": "number",
+      "default": 500000
+    },
+    "tokens_used_this_month": {
+      "type": "number",
+      "default": 0
+    },
+    "guardrails_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "citation_required": {
+      "type": "boolean",
+      "default": true
+    },
+    "two_factor_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "provider"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
