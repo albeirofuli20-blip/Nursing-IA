@@ -1,0 +1,178 @@
+{
+  "name": "Medication",
+  "type": "object",
+  "properties": {
+    "generic_name": {
+      "type": "string"
+    },
+    "trade_name": {
+      "type": "string"
+    },
+    "pharmacological_class": {
+      "type": "string"
+    },
+    "therapeutic_group": {
+      "type": "string"
+    },
+    "mechanism_of_action": {
+      "type": "string"
+    },
+    "main_indications": {
+      "type": "string"
+    },
+    "off_label_uses": {
+      "type": "string"
+    },
+    "contraindications": {
+      "type": "string"
+    },
+    "precautions": {
+      "type": "string"
+    },
+    "dose_adults": {
+      "type": "string"
+    },
+    "dose_pediatrics": {
+      "type": "string"
+    },
+    "dose_geriatrics": {
+      "type": "string"
+    },
+    "dose_pregnancy": {
+      "type": "string"
+    },
+    "dose_renal": {
+      "type": "string"
+    },
+    "dose_hepatic": {
+      "type": "string"
+    },
+    "administration_routes": {
+      "type": "string"
+    },
+    "dilution_reconstitution": {
+      "type": "string"
+    },
+    "iv_compatibility": {
+      "type": "string"
+    },
+    "iv_incompatibility": {
+      "type": "string"
+    },
+    "infusion_rate": {
+      "type": "string"
+    },
+    "stability_after_prep": {
+      "type": "string"
+    },
+    "storage": {
+      "type": "string"
+    },
+    "nursing_pre_assessment": {
+      "type": "string"
+    },
+    "nursing_during_admin": {
+      "type": "string"
+    },
+    "nursing_post_admin": {
+      "type": "string"
+    },
+    "monitoring_parameters": {
+      "type": "string"
+    },
+    "warning_signs": {
+      "type": "string"
+    },
+    "patient_education": {
+      "type": "string"
+    },
+    "nanda_related": {
+      "type": "string"
+    },
+    "nic_suggested": {
+      "type": "string"
+    },
+    "noc_expected": {
+      "type": "string"
+    },
+    "adverse_reactions": {
+      "type": "string"
+    },
+    "frequent_side_effects": {
+      "type": "string"
+    },
+    "drug_interactions": {
+      "type": "string"
+    },
+    "food_interactions": {
+      "type": "string"
+    },
+    "antidote": {
+      "type": "string"
+    },
+    "overdose_management": {
+      "type": "string"
+    },
+    "lasa_classification": {
+      "type": "string"
+    },
+    "high_risk_ismp": {
+      "type": "boolean",
+      "default": false
+    },
+    "pregnancy_risk_level": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "X"
+      ],
+      "default": "C"
+    },
+    "alert_level": {
+      "type": "string",
+      "enum": [
+        "verde",
+        "amarillo",
+        "rojo"
+      ],
+      "default": "verde"
+    }
+  },
+  "required": [
+    "generic_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

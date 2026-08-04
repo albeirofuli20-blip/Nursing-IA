@@ -1,0 +1,109 @@
+{
+  "name": "LabTest",
+  "type": "object",
+  "properties": {
+    "test_name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "reference_range_adult_male": {
+      "type": "string"
+    },
+    "reference_range_adult_female": {
+      "type": "string"
+    },
+    "reference_range_pediatric": {
+      "type": "string"
+    },
+    "reference_range_elderly": {
+      "type": "string"
+    },
+    "sample_type": {
+      "type": "string"
+    },
+    "collection_instructions": {
+      "type": "string"
+    },
+    "patient_preparation": {
+      "type": "string"
+    },
+    "interpretation_low": {
+      "type": "string"
+    },
+    "interpretation_high": {
+      "type": "string"
+    },
+    "interpretation_normal": {
+      "type": "string"
+    },
+    "critical_values": {
+      "type": "string"
+    },
+    "nanda_related": {
+      "type": "string"
+    },
+    "nic_suggested": {
+      "type": "string"
+    },
+    "noc_expected": {
+      "type": "string"
+    },
+    "nursing_implications": {
+      "type": "string"
+    },
+    "follow_up_actions": {
+      "type": "string"
+    },
+    "related_medications": {
+      "type": "string"
+    },
+    "alert_level": {
+      "type": "string",
+      "enum": [
+        "verde",
+        "amarillo",
+        "rojo"
+      ],
+      "default": "verde"
+    }
+  },
+  "required": [
+    "test_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

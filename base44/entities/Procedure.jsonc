@@ -1,0 +1,106 @@
+{
+  "name": "Procedure",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "indications": {
+      "type": "string"
+    },
+    "contraindications": {
+      "type": "string"
+    },
+    "precautions": {
+      "type": "string"
+    },
+    "required_materials": {
+      "type": "string"
+    },
+    "patient_preparation": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "complications": {
+      "type": "string"
+    },
+    "complication_prevention": {
+      "type": "string"
+    },
+    "aftercare": {
+      "type": "string"
+    },
+    "monitoring_parameters": {
+      "type": "string"
+    },
+    "nanda_related": {
+      "type": "string"
+    },
+    "nic_suggested": {
+      "type": "string"
+    },
+    "noc_expected": {
+      "type": "string"
+    },
+    "patient_education": {
+      "type": "string"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "basico",
+        "intermedio",
+        "avanzado"
+      ],
+      "default": "basico"
+    },
+    "estimated_duration": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
