@@ -17,8 +17,11 @@ export default function useStructuredCapture(onSaved) {
         ? Object.entries(scales).map(([key, val]) => `${SCALES[key]?.name || key}: ${val.score} puntos (${val.interpretation})`).join("\n")
         : "No se aplicaron escalas en esta valoración.";
 
+      const clinicalImages = captureData.clinical_images || [];
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Actúa como enfermero especialista en Proceso de Atención de Enfermería (PAE), NANDA-I, NOC, NIC, seguridad del paciente y valoración clínica hospitalaria y comunitaria.
+
+${clinicalImages.length > 0 ? `IMÁGENES CLÍNICAS ADJUNTAS: Se han proporcionado ${clinicalImages.length} imagen(es) clínica(s). Analízalas visualmente para identificar hallazgos relevantes (tipo y estado de heridas, lesiones, signos clínicos, resultados de estudios imagenológicos, etc.) e intégralos en la valoración y diagnósticos NANDA. Describe lo que observas en cada imagen y relaciónalo con los datos clínicos.` : ""}
 
 Tipo de PAE: ${paeType}
 
@@ -55,6 +58,7 @@ Para cada PAE genera:
 12. Puntuación DIANA si aplica
 
 Genera todos los PAE que la valoración justifique, mínimo 4.`,
+        file_urls: clinicalImages.length > 0 ? clinicalImages : undefined,
         response_json_schema: {
           type: "object",
           properties: {

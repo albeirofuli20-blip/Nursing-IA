@@ -1,4 +1,5 @@
 import { LabeledInput, LabeledTextarea, LabeledSelect } from "@/components/pae/capture/CaptureFields";
+import { ImageUpload } from "@/components/pae/capture/ImageUpload";
 
 export function Step1Identification({ data, set }) {
   return (
@@ -11,11 +12,13 @@ export function Step1Identification({ data, set }) {
         <LabeledInput label="Nombre o código" value={data.code} onChange={(v) => set("code", v)} placeholder="Ej. P-001" />
         <LabeledInput label="Nombre completo" value={data.full_name} onChange={(v) => set("full_name", v)} placeholder="Nombre del paciente" />
         <LabeledInput label="Edad" value={data.age} onChange={(v) => set("age", v)} placeholder="Años" />
+        <LabeledInput label="Fecha de nacimiento" type="date" value={data.birth_date} onChange={(v) => set("birth_date", v)} />
+        <LabeledInput label="Fecha de ingreso" type="date" value={data.admission_date} onChange={(v) => set("admission_date", v)} />
         <LabeledSelect label="Sexo" value={data.sex} onChange={(v) => set("sex", v)} options={["Femenino", "Masculino", "Otro", "No especificado"]} />
         <LabeledInput label="Peso (kg)" value={data.weight} onChange={(v) => set("weight", v)} placeholder="Ej. 70" />
         <LabeledInput label="Talla (cm)" value={data.height} onChange={(v) => set("height", v)} placeholder="Ej. 165" />
         <LabeledInput label="Servicio" value={data.service} onChange={(v) => set("service", v)} placeholder="Ej. Hospitalización" />
-        <LabeledInput label="Fecha" type="date" value={data.date} onChange={(v) => set("date", v)} />
+        <LabeledInput label="Fecha de valoración" type="date" value={data.date} onChange={(v) => set("date", v)} />
         <LabeledSelect label="Zona" value={data.zone} onChange={(v) => set("zone", v)} options={["Urbana", "Rural"]} />
         <LabeledSelect label="¿Está acompañado?" value={data.accompanied} onChange={(v) => set("accompanied", v)} options={["Sí", "No"]} />
         <LabeledInput label="Nombre del acompañante" value={data.companion_name} onChange={(v) => set("companion_name", v)} placeholder="Nombre" />
@@ -90,6 +93,7 @@ export function Step5Objective({ data, set }) {
         <LabeledInput label="Heridas" value={data.wounds} onChange={(v) => set("wounds", v)} placeholder="Ej. Herida quirúrgica limpia" />
         <LabeledInput label="Edemas" value={data.edema} onChange={(v) => set("edema", v)} placeholder="Ej. Edema en MMII" />
         <LabeledInput label="Otros hallazgos" value={data.other_findings} onChange={(v) => set("other_findings", v)} />
+        <ImageUpload label="Imágenes clínicas (heridas, lesiones, estudios, etc.)" images={data.clinical_images || []} onChange={(v) => set("clinical_images", v)} />
       </div>
     </div>
   );
