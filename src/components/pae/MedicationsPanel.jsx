@@ -11,6 +11,7 @@ import InteractionChecker from "@/components/clinical/InteractionChecker";
 import PhotoRecognition from "@/components/clinical/PhotoRecognition";
 import DetailSection from "@/components/clinical/DetailSection";
 import { exportMedicationToPdf } from "@/lib/exportClinical";
+import AddMedicationDialog from "@/components/medications/AddMedicationDialog";
 
 const ALERT_STYLES = {
   verde: { bg: "bg-green-100 text-green-700", icon: CheckCircle, label: "Seguro" },
@@ -26,7 +27,7 @@ const AI_QUESTIONS = [
   "¿Qué educación debo brindar al paciente?"
 ];
 
-export default function MedicationsPanel() {
+export default function MedicationsPanel({ userRole }) {
   const [meds, setMeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -34,14 +35,17 @@ export default function MedicationsPanel() {
   const [showFavOnly, setShowFavOnly] = useState(false);
   const { isFavorite, toggle, favorites } = useFavorites("medications");
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await base44.entities.Medication.list("-updated_date", 100);
-        setMeds(data);
-      } catch { /* noop */ } finally { setLoading(false); }
-    })();
-  }, []);
+  const isAdmin = userRole === "admin";
+
+  async function loadMeds() {
+    setLoading(true);
+    try {
+      const data = await base44.entities.Medication.list("-updated_date", 100);
+      setMeds(data);
+    } catch { /* noop */ } finally { setLoading(false); }
+  }
+
+  useEffect(() => { loadMeds(); }, []);
 
   function handlePhotoIdentified(name) {
     setSearch(name);
@@ -75,6 +79,7 @@ export default function MedicationsPanel() {
         <Button variant={showFavOnly ? "default" : "outline"} size="sm" onClick={() => setShowFavOnly(!showFavOnly)} className="gap-1.5">
           <Star className={`h-4 w-4 ${showFavOnly ? "fill-current" : ""}`} /> Favoritos ({favorites.length})
         </Button>
+        {isAdmin && <AddMedicationDialog onSaved={loadMeds} />}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
