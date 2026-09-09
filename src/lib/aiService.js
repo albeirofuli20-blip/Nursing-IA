@@ -113,7 +113,7 @@ Para cada PAE genera:
 3. Diagnóstico médico (si se puede inferir)
 4. Diagnósticos NANDA-I: código, dominio, clase, definición, factores relacionados, características definitorias
 5. Resultados NOC: código, indicadores, escala inicial y esperada (1-5)
-6. Intervenciones NIC: código, actividades detalladas, fundamentación científica
+6. Intervenciones NIC: mínimo 4 intervenciones bien descriptas, cada una con código, actividades detalladas paso a paso y fundamentación científica
 7. Escalas aplicadas: nombre, puntuación, interpretación
 8. Ejecución: plan de implementación
 9. Evaluación: criterios incluyendo comparación de escalas
@@ -121,7 +121,7 @@ Para cada PAE genera:
 11. Recomendaciones para el seguimiento
 12. Puntuación DIANA si aplica
 
-Genera todos los PAE que la valoración justifique, mínimo 4.`;
+Genera todos los PAE que la valoración justifique, mínimo 4. Cada PAE debe incluir mínimo 4 intervenciones NIC bien descriptas con actividades detalladas y fundamentación científica.`;
 
   const result = await invokeAI({
     prompt,

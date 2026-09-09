@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Check, Sparkles, UserPlus, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Sparkles, UserPlus, FileText, Save, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import useStructuredCapture from "@/hooks/useStructuredCapture";
@@ -18,12 +18,16 @@ const STEPS = [
 
 const STEP_COMPONENTS = { 1: Step1Identification, 2: Step2Social, 3: Step3Clinical, 4: Step4Subjective, 5: Step5Objective, 6: Step6Valoracion };
 
+const DRAFT_KEY = "nurse_master_pae_draft";
+
 export default function StructuredCapture({ patients, guides, onSaved, preselectedPatientId, forceNewPatient }) {
   const [step, setStep] = useState(1);
   const [data, setData] = useState({});
   const [patientMode, setPatientMode] = useState(forceNewPatient ? "new" : "existing");
   const [existingPatientId, setExistingPatientId] = useState(preselectedPatientId || "");
   const [generated, setGenerated] = useState(null);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [savedMsg, setSavedMsg] = useState("");
   const { generate, loading, error } = useStructuredCapture((plans) => { setGenerated(plans); onSaved(); });
 
   useEffect(() => {
@@ -33,7 +37,57 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
     }
   }, [preselectedPatientId]);
 
+  // Check for saved draft on mount
+  useEffect(() => {
+    if (forceNewPatient) return;
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.data && Object.keys(parsed.data).length > 0) {
+          setHasDraft(true);
+        }
+      }
+    } catch { /* noop */ }
+  }, [forceNewPatient]);
+
+  // Auto-save progress whenever data or step changes
+  useEffect(() => {
+    if (Object.keys(data).length > 0 && !generated) {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ data, step, patientMode, existingPatientId, savedAt: new Date().toISOString() }));
+      } catch { /* noop */ }
+    }
+  }, [data, step, patientMode, existingPatientId, generated]);
+
   const set = (key, val) => setData((d) => ({ ...d, [key]: val }));
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ data, step, patientMode, existingPatientId, savedAt: new Date().toISOString() }));
+      setSavedMsg("Progreso guardado ✓");
+      setTimeout(() => setSavedMsg(""), 2500);
+    } catch { /* noop */ }
+  }
+
+  function restoreDraft() {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setData(parsed.data || {});
+        setStep(parsed.step || 1);
+        setPatientMode(parsed.patientMode || "existing");
+        setExistingPatientId(parsed.existingPatientId || "");
+      }
+    } catch { /* noop */ }
+    setHasDraft(false);
+  }
+
+  function clearDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+    setHasDraft(false);
+  }
 
   const existingPatient = patients.find((p) => p.id === existingPatientId);
   const canGenerate = patientMode === "existing" ? !!existingPatient : !!(data.code && data.full_name);
@@ -75,6 +129,20 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
         ))}
       </div>
 
+      {/* Restore draft banner */}
+      {hasDraft && (
+        <div className="mb-4 flex items-center justify-between gap-2 rounded-lg border border-[#00A8B5]/40 bg-[#00A8B5]/5 p-3">
+          <div className="flex items-center gap-2 text-sm text-[#002D62]">
+            <RotateCcw className="h-4 w-4" />
+            <span>Hay un progreso guardado de una captura anterior.</span>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={restoreDraft} className="bg-[#00A8B5] hover:bg-[#008f99]">Restaurar</Button>
+            <Button size="sm" variant="ghost" onClick={clearDraft} className="text-slate-500"><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        </div>
+      )}
+
       {/* Patient mode selector (step 1 only) */}
       {step === 1 && !forceNewPatient && (
         <div className="mb-4 flex gap-2 rounded-lg bg-slate-50 p-2">
@@ -106,7 +174,7 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
           <Button onClick={handleGenerate} disabled={!canGenerate || loading} className="bg-[#00A8B5] hover:bg-[#008f99]">
             {loading ? <><Sparkles className="h-4 w-4 animate-pulse" />Generando PAE...</> : <><Sparkles className="h-4 w-4" />Generar PAE con IA</>}
           </Button>
-          <p className="text-xs text-slate-500">La IA generará mínimo 4 PAE independientes. Toda propuesta requiere validación del profesional.</p>
+          <p className="text-xs text-slate-500">La IA generará mínimo 4 PAE independientes, cada uno con mínimo 4 intervenciones NIC bien descriptas. Toda propuesta requiere validación del profesional.</p>
         </div>
       )}
 
@@ -125,19 +193,25 @@ export default function StructuredCapture({ patients, guides, onSaved, preselect
               </div>
             ))}
           </div>
-          <Button variant="outline" onClick={() => { setGenerated(null); setStep(1); setData({}); }}>Nueva captura</Button>
+          <Button variant="outline" onClick={() => { setGenerated(null); setStep(1); setData({}); clearDraft(); }}>Nueva captura</Button>
         </div>
       )}
 
       {/* Navigation */}
       {step < 7 && !generated && (
-        <div className="mt-6 flex justify-between">
+        <div className="mt-6 flex items-center justify-between">
           <Button variant="ghost" onClick={() => setStep((s) => Math.max(1, s - 1))} disabled={step === 1}>
             <ChevronLeft className="h-4 w-4" />Anterior
           </Button>
-          <Button onClick={() => setStep((s) => Math.min(7, s + 1))} className="bg-[#002D62] hover:bg-[#001f4d]">
-            Siguiente<ChevronRight className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {savedMsg && <span className="text-xs font-medium text-green-600">{savedMsg}</span>}
+            <Button variant="outline" size="sm" onClick={saveProgress} className="gap-1.5 border-[#00A8B5] text-[#00A8B5] hover:bg-[#00A8B5]/10">
+              <Save className="h-4 w-4" /> Guardar progreso
+            </Button>
+            <Button onClick={() => setStep((s) => Math.min(7, s + 1))} className="bg-[#002D62] hover:bg-[#001f4d]">
+              Siguiente<ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
     </div>
