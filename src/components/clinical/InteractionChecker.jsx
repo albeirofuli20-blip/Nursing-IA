@@ -16,8 +16,8 @@ export default function InteractionChecker({ med }) {
     setResult(null);
     try {
       const prompt = `Eres un farmacéutico clínico experto. Analiza las interacciones medicamentosas entre los siguientes fármacos y responde en español en formato JSON.\n\nFármaco principal: ${med.generic_name} (${med.pharmacological_class || ""})\nInteracciones conocidas: ${med.drug_interactions || "No especificadas"}\n\nOtros medicamentos del paciente: ${otherMeds}\n\nResponde en este formato JSON exacto:\n{"interactions": [{"drug": "nombre del otro fármaco", "severity": "leve|moderada|severa", "description": "descripción de la interacción", "recommendation": "recomendación clínica"}], "summary": "resumen general"}`;
-      const res = await base44.integrations.Core.InvokeLLM({ prompt, response_json_schema: { type: "object", properties: { interactions: { type: "array", items: { type: "object", properties: { drug: { type: "string" }, severity: { type: "string" }, description: { type: "string" }, recommendation: { type: "string" } } } }, summary: { type: "string" } } }, model: "gemini_3_flash" });
-      setResult(res);
+      const response = await base44.functions.invoke("aiInvoke", { action: "check_interactions", prompt, response_json_schema: { type: "object", properties: { interactions: { type: "array", items: { type: "object", properties: { drug: { type: "string" }, severity: { type: "string" }, description: { type: "string" }, recommendation: { type: "string" } } } }, summary: { type: "string" } } }, model: "gemini_3_flash" });
+      setResult(response.data);
     } catch {
       setResult({ error: "No se pudo analizar las interacciones. Intenta nuevamente." });
     } finally {

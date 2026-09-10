@@ -55,29 +55,21 @@ async function logAudit(action, description, extra = {}) {
  *
  * @param {object} params - { prompt, response_json_schema, file_urls, model, action }
  */
-async function invokeAI({ prompt, response_json_schema, file_urls, model, action }) {
-  const config = await loadConfig();
-  const provider = config?.provider || "base44";
-
-  if (provider === "abacus" && config?.abacus_api_key) {
-    // Abacus.AI requiere una llamada backend segura (la API key no puede exponerse en el frontend).
-    // Esto necesita un backend function (Builder+). Mientras tanto, se usa el proveedor base44.
-    // Cuando el backend function esté disponible, esta rama llamará a:
-    //   base44.functions.abacusProxy({ prompt, response_json_schema, file_urls, model })
-    // Por ahora, cae al proveedor base44 para no romper el flujo.
-    return invokeBase44({ prompt, response_json_schema, file_urls, model });
-  }
-
-  return invokeBase44({ prompt, response_json_schema, file_urls, model });
+async function invokeAI({ prompt, response_json_schema, file_urls, model, action, add_context_from_internet }) {
+  // Todas las llamadas a InvokeLLM se enrutan por el backend function aiInvoke,
+  // que autentica al usuario, valida la acción y restringe el modelo para proteger créditos.
+  return invokeBase44({ prompt, response_json_schema, file_urls, model, action, add_context_from_internet });
 }
 
-async function invokeBase44({ prompt, response_json_schema, file_urls, model }) {
+async function invokeBase44({ prompt, response_json_schema, file_urls, model, action, add_context_from_internet }) {
   const config = await loadConfig();
-  const params = { prompt };
-  if (response_json_schema) params.response_json_schema = response_json_schema;
-  if (file_urls && file_urls.length > 0) params.file_urls = file_urls;
-  if (model || config?.default_model) params.model = model || config.default_model;
-  return base44.integrations.Core.InvokeLLM(params);
+  const payload = { action, prompt };
+  if (response_json_schema) payload.response_json_schema = response_json_schema;
+  if (file_urls && file_urls.length > 0) payload.file_urls = file_urls;
+  if (model || config?.default_model) payload.model = model || config.default_model;
+  if (add_context_from_internet) payload.add_context_from_internet = true;
+  const response = await base44.functions.invoke("aiInvoke", payload);
+  return response.data;
 }
 
 // ─── Funciones de IA para Nurse Master IA ───

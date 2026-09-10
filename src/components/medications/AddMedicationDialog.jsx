@@ -128,7 +128,8 @@ export default function AddMedicationDialog({ onSaved }) {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       const prompt = `Eres un farmacéutico experto. Analiza esta imagen de un medicamento (blíster, ampolla, caja o tableta) e identifica el principio activo. Responde en español en formato JSON con generic_name y trade_name.`;
-      const res = await base44.integrations.Core.InvokeLLM({
+      const response = await base44.functions.invoke("aiInvoke", {
+        action: "recognize_medication",
         prompt,
         file_urls: [file_url],
         response_json_schema: {
@@ -142,6 +143,7 @@ export default function AddMedicationDialog({ onSaved }) {
         },
         model: "gemini_3_flash",
       });
+      const res = response.data;
       if (res?.generic_name) {
         setForm((f) => ({
           ...f,
@@ -167,11 +169,13 @@ export default function AddMedicationDialog({ onSaved }) {
     setError("");
     try {
       const prompt = `Eres un farmacéutico y enfermero experto. Completa la ficha clínica completa del medicamento "${medName}" para uso de enfermería. Incluye dosificación para adultos, pediatría, geriatría, embarazo, insuficiencia renal y hepática; administración, dilución, compatibilidad IV, cuidados de enfermería (valoración previa, durante y posterior), monitorización, signos de alarma, educación al paciente, taxonomía NANDA/NIC/NOC, reacciones adversas, interacciones, antídoto, clasificación LASA, riesgo en embarazo (A/B/C/D/X) y nivel de alerta (verde/amarillo/rojo). Responde en español.`;
-      const res = await base44.integrations.Core.InvokeLLM({
+      const response = await base44.functions.invoke("aiInvoke", {
+        action: "autofill_medication",
         prompt,
         response_json_schema: AI_SCHEMA,
         model: "gemini_3_flash",
       });
+      const res = response.data;
       if (res) {
         setForm((f) => ({
           ...f,

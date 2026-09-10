@@ -15,7 +15,8 @@ export default function PhotoRecognition({ onIdentified }) {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       const prompt = `Eres un farmacéutico experto. Analiza esta imagen de un medicamento (blíster, ampolla, caja o tableta) e identifica el principio activo. Responde en español en formato JSON:\n\n{"generic_name": "nombre genérico del principio activo", "trade_name": "nombre comercial si es visible", "confidence": "alta|media|baja", "notes": "observaciones"}\n\nSi no puedes identificar el medicamento, responde con generic_name null y explica en notes.`;
-      const res = await base44.integrations.Core.InvokeLLM({ prompt, file_urls: [file_url], response_json_schema: { type: "object", properties: { generic_name: { type: "string" }, trade_name: { type: "string" }, confidence: { type: "string" }, notes: { type: "string" } } }, model: "gemini_3_flash" });
+      const response = await base44.functions.invoke("aiInvoke", { action: "recognize_medication", prompt, file_urls: [file_url], response_json_schema: { type: "object", properties: { generic_name: { type: "string" }, trade_name: { type: "string" }, confidence: { type: "string" }, notes: { type: "string" } } }, model: "gemini_3_flash" });
+      const res = response.data;
       setResult(res);
       if (res?.generic_name && onIdentified) onIdentified(res.generic_name);
     } catch {

@@ -23,7 +23,8 @@ export default function ClinicalAiAssistant({ contextLabel, contextData, placeho
     setLoading(true);
     try {
       const prompt = `Eres un asistente clínico de enfermería experto. Responde en español, de forma clara y concisa, basándote en evidencia científica y taxonomía NANDA/NIC/NOC.\n\nContexto del recurso clínico (${contextLabel}):\n${JSON.stringify(contextData, null, 2)}\n\nPregunta del profesional de enfermería: ${question}\n\nProporciona una respuesta práctica, accionable y segura. Si la pregunta implica riesgo clínico, recomienda consultar siempre con el equipo médico.`;
-      const res = await base44.integrations.Core.InvokeLLM({ prompt, model: "gemini_3_flash" });
+      const response = await base44.functions.invoke("aiInvoke", { action: "clinical_chat", prompt, model: "gemini_3_flash" });
+      const res = response.data;
       const text = typeof res === "string" ? res : res?.response || res?.text || JSON.stringify(res);
       setMessages((prev) => [...prev, { role: "assistant", text }]);
     } catch {
