@@ -1,0 +1,66 @@
+{
+  "auth": "oauth",
+  "tools": {
+    "functions": [
+      {
+        "name": "invoke_ai",
+        "title": "Invoke AI Assistant",
+        "description": "Runs an AI operation on the Nurse Master IA nursing platform. Use this to generate nursing care plans (PAE) with NANDA/NOC/NIC taxonomies, get clinical chat answers, check drug interactions, recognize medications from images, or search the web for clinical guidelines. Pass an 'action' from the allowed list and a 'prompt' with the clinical question or instructions.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "generate_pae",
+                "generate_nanda",
+                "suggest_nic",
+                "suggest_noc",
+                "create_evolution",
+                "summarize_history",
+                "ai_chat",
+                "analyze_case",
+                "generate_educational",
+                "clinical_chat",
+                "check_interactions",
+                "recognize_medication",
+                "autofill_medication",
+                "search_web_guide",
+                "generate_plan"
+              ],
+              "description": "The AI operation to perform."
+            },
+            "prompt": {
+              "type": "string",
+              "description": "The clinical prompt or question for the AI."
+            },
+            "model": {
+              "type": "string",
+              "description": "Optional model override. Defaults to gemini_3_flash. Non-admin users are restricted to economical models (automatic, gemini_3_flash, gpt_5_mini)."
+            },
+            "file_urls": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Optional list of image file URLs for visual analysis (e.g. medication photos)."
+            },
+            "response_json_schema": {
+              "type": "object",
+              "description": "Optional JSON schema to force structured JSON output instead of plain text."
+            },
+            "add_context_from_internet": {
+              "type": "boolean",
+              "description": "Optional. Set true to let the AI search the web for current clinical guidelines. Only works with gemini models."
+            }
+          },
+          "required": ["action", "prompt"]
+        },
+        "handler": "aiInvoke",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      }
+    ]
+  }
+}
