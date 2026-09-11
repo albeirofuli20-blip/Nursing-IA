@@ -5,7 +5,8 @@ export function Step1Identification({ data, set }) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-500">Datos de identificación del paciente.</p>
-      <div className="mb-3 sm:max-w-xs">
+      <div className="mb-3 grid gap-3 sm:max-w-2xl sm:grid-cols-2">
+        <LabeledSelect label="Modalidad de PAE" value={data.pae_mode} onChange={(v) => set("pae_mode", v)} options={["Detallado", "Rápido"]} />
         <LabeledSelect label="Tipo de PAE" value={data.pae_type} onChange={(v) => set("pae_type", v)} options={["Intrahospitalario", "Comunitario"]} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">

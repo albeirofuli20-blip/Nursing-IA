@@ -1,0 +1,44 @@
+{
+  "name": "Sync Blog Feed",
+  "description": "Sincroniza art\u00edculos del blog Enfermer\u00eda Blog como gu\u00edas cl\u00ednicas, diariamente a las 6am",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 6 * * *",
+      "one_time_date": null,
+      "timezone": "America/Bogota",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "sync_blog_feed",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sync_feed": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "syncBlogFeed"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Sincronizar feed del blog",
+            "description": "Importa art\u00edculos nuevos como gu\u00edas"
+          }
+        }
+      }
+    ]
+  }
+}

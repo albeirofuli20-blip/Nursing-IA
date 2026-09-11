@@ -83,17 +83,24 @@ async function generatePAE(captureData, guides, options = {}) {
   const clinicalImages = captureData.clinical_images || [];
   const context = guides.slice(0, 5).map((g) => `${g.title}: ${g.content}`).join("\n");
 
-  const basePrompt = config?.prompt_pae || `Actúa como enfermero especialista en Proceso de Atención de Enfermería (PAE), NANDA-I, NOC, NIC, seguridad del paciente y valoración clínica hospitalaria y comunitaria.`;
+  const paeMode = (captureData.pae_mode || "Detallado").toLowerCase() === "rápido" ? "Rápido" : "Detallado";
+  const basePrompt = config?.prompt_pae || `Actúa como enfermero especialista en Proceso de Atención de Enfermería (PAE), basado en NANDA-I 2024–2026, NOC y NIC, seguridad del paciente y valoración clínica hospitalaria y comunitaria.`;
+
+  const modeInstructions = paeMode === "Rápido"
+    ? `MODALIDAD PAE RÁPIDO: Genera un plan inicial ágil basado en el modelo de Virginia Henderson y diagnósticos en formato PES (Problema-Etiología-Signos/Síntomas). Prioriza los hallazgos más relevantes para un plan de cuidados inicial en pocos minutos.`
+    : `MODALIDAD PAE DETALLADO: Realiza una valoración integral por sistemas y aparatos, integra los patrones de Gordon y las 14 necesidades de Henderson, aplica razonamiento clínico estructurado y genera un plan de cuidados exhaustivo con continuidad del caso.`;
 
   const prompt = `${basePrompt}
 
 Tipo de PAE: ${paeType}
+Modalidad: ${paeMode}
+${modeInstructions}
 
 ${clinicalImages.length > 0 ? `IMÁGENES CLÍNICAS ADJUNTAS: Se han proporcionado ${clinicalImages.length} imagen(es) clínica(s). Analízalas visualmente para identificar hallazgos relevantes (tipo y estado de heridas, lesiones, signos clínicos, resultados de estudios imagenológicos, etc.) e intégralos en la valoración y diagnósticos NANDA. Describe lo que observas en cada imagen y relaciónalo con los datos clínicos.` : ""}
 
-Analiza la siguiente valoración estructurada y genera mínimo 4 Planes de Atención de Enfermería (PAE) independientes, basados en NANDA-I, NOC y NIC. No inventes información ni signos que no estén en los datos. Si faltan datos críticos para un diagnóstico, omítelo. Cada PAE debe ser independiente y completo.
+Analiza la siguiente valoración estructurada y genera mínimo 4 Planes de Atención de Enfermería (PAE) independientes, basados en NANDA-I 2024–2026, NOC y NIC. No inventes información ni signos que no estén en los datos. Si faltan datos críticos para un diagnóstico, omítelo. Cada PAE debe ser independiente y completo.
 
-Datos de valoración estructurada (incluye los 11 patrones funcionales de Gordon):
+Datos de valoración estructurada (incluye patrones funcionales de Gordon, valoración por sistemas y 14 necesidades de Henderson):
 ${JSON.stringify(captureData, null, 2)}
 
 Guías clínicas disponibles:
@@ -101,16 +108,16 @@ ${context}
 
 Para cada PAE genera:
 1. Título descriptivo del PAE
-2. Valoración resumida
+2. Valoración resumida (integrando hallazgos por sistemas y necesidades de Henderson)
 3. Diagnóstico médico (si se puede inferir)
-4. Diagnósticos NANDA-I: código, dominio, clase, definición, factores relacionados, características definitorias
+4. Diagnósticos NANDA-I en formato PES: cada diagnóstico debe expresar Problema (etiqueta NANDA con código, dominio y clase), Etiología (factores relacionados) y Signos/Síntomas (características definitorias evidentes). Incluye definición del diagnóstico.
 5. Resultados NOC: código, indicadores, escala inicial y esperada (1-5)
 6. Intervenciones NIC: mínimo 4 intervenciones bien descriptas, cada una con código, actividades detalladas paso a paso y fundamentación científica
 7. Escalas aplicadas: nombre, puntuación, interpretación
 8. Ejecución: plan de implementación
-9. Evaluación: criterios incluyendo comparación de escalas
+9. Evaluación: criterios incluyendo comparación de escalas (baseline, seguimiento, alta)
 10. Educación al paciente y cuidador
-11. Recomendaciones para el seguimiento
+11. Recomendaciones para el seguimiento y continuidad del caso
 12. Puntuación DIANA si aplica
 
 Genera todos los PAE que la valoración justifique, mínimo 4. Cada PAE debe incluir mínimo 4 intervenciones NIC bien descriptas con actividades detalladas y fundamentación científica.`;

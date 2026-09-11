@@ -19,6 +19,36 @@ const GORDON_PATTERNS = [
   { key: "pattern_values", label: "11. Valores-creencias", placeholder: "Creencias religiosas, valores espirituales, prácticas..." }
 ];
 
+const SYSTEMS = [
+  { key: "sys_general", label: "General", placeholder: "Estado general, nivel de conciencia, hidratación, nutrición, marcha..." },
+  { key: "sys_respiratory", label: "Respiratorio", placeholder: "Patrón respiratorio, auscultación, saturación, tos, disnea..." },
+  { key: "sys_cardiovascular", label: "Cardiovascular", placeholder: "Ruidos cardiacos, pulsos, edemas, llenado capilar, dolor torácico..." },
+  { key: "sys_neurological", label: "Neurológico", placeholder: "Conciencia, orientación, pares craneales, fuerza, sensibilidad, reflejos..." },
+  { key: "sys_gastrointestinal", label: "Gastrointestinal", placeholder: "Abdomen, ruidos, digestión, náuseas, vómitos, heces..." },
+  { key: "sys_genitourinary", label: "Genitourinario", placeholder: "Diuresis, características de orina, sondas, molestias..." },
+  { key: "sys_musculoskeletal", label: "Musculoesquelético", placeholder: "Tono, fuerza, movilidad, deformidades, contracturas..." },
+  { key: "sys_skin", label: "Tegumentario (piel y anexos)", placeholder: "Color, turgor, lesiones, heridas, úlceras, mucosas..." },
+  { key: "sys_endocrine", label: "Endocrino", placeholder: "Signos de alteración tiroidea, glucemia, poliuria, polidipsia..." },
+  { key: "sys_senses", label: "Sentidos", placeholder: "Agudeza visual, auditiva, uso de lentes/audífonos..." }
+];
+
+const HENDERSON_NEEDS = [
+  { key: "henderson_breathe", label: "1. Respirar normalmente", placeholder: "Patrón respiratorio, disnea, oxigenoterapia..." },
+  { key: "henderson_eat", label: "2. Comer y beber adecuadamente", placeholder: "Apetito, dieta, ingesta, deglución..." },
+  { key: "henderson_eliminate", label: "3. Eliminar por todas las vías", placeholder: "Patrón intestinal, vesical, sudoración..." },
+  { key: "henderson_move", label: "4. Moverse y mantener posturas adecuadas", placeholder: "Movilidad, deambulación, ayuda necesaria..." },
+  { key: "henderson_sleep", label: "5. Dormir y descansar", placeholder: "Horas, calidad, ayuda para dormir..." },
+  { key: "henderson_dress", label: "6. Vestirse y desvestirse", placeholder: "Autonomía, ayuda necesaria, ropa adaptada..." },
+  { key: "henderson_temperature", label: "7. Mantener temperatura corporal", placeholder: "Termorregulación, fiebre, escalofríos..." },
+  { key: "henderson_hygiene", label: "8. Mantener higiene e integridad de la piel", placeholder: "Aseo, estado de piel, auto cuidado..." },
+  { key: "henderson_safety", label: "9. Evitar peligros ambientales", placeholder: "Riesgo de caídas, seguridad en el entorno..." },
+  { key: "henderson_communicate", label: "10. Comunicarse con otros", placeholder: "Lenguaje, comprensión, red de apoyo..." },
+  { key: "henderson_beliefs", label: "11. Vivir según creencias y valores", placeholder: "Creencias, prácticas espirituales, valores..." },
+  { key: "henderson_accomplish", label: "12. Ocuparse de su realización", placeholder: "Sentido de vida, metas, satisfacción..." },
+  { key: "henderson_recreation", label: "13. Participar en actividades recreativas", placeholder: "Ocio, hobbies, actividades sociales..." },
+  { key: "henderson_learn", label: "14. Aprender y satisfacer curiosidad", placeholder: "Interés por aprender, comprensión de su proceso..." }
+];
+
 function recommendScales(data) {
   const recommended = [];
   const paeType = (data.pae_type || "intrahospitalario").toLowerCase();
@@ -121,8 +151,21 @@ export function Step6Valoracion({ data, set }) {
         </div>
       </SubSection>
 
-      <SubSection icon={ClipboardList} title="Necesidades de Henderson" color="text-[#002D62]">
-        <LabeledTextarea label="14 necesidades básicas de Virginia Henderson" value={data.henderson_needs} onChange={(v) => set("henderson_needs", v)} rows={3} placeholder="Respirar, comer, beber, eliminar, moverse, dormir, vestirse, temperatura, higiene, seguridad, comunicarse, creencias, trabajar, recrearse, aprender..." />
+      <SubSection icon={Stethoscope} title="Valoración por sistemas" color="text-[#00A8B5]">
+        <p className="mb-3 text-xs text-slate-500">Exploración física por aparatos y sistemas (modelo PAE Detallado).</p>
+        <div className="space-y-3">
+          {SYSTEMS.map((s) => (
+            <LabeledTextarea key={s.key} label={s.label} value={data[s.key]} onChange={(v) => set(s.key, v)} rows={2} placeholder={s.placeholder} />
+          ))}
+        </div>
+      </SubSection>
+
+      <SubSection icon={ClipboardList} title="14 necesidades de Henderson" color="text-[#002D62]">
+        <div className="space-y-3">
+          {HENDERSON_NEEDS.map((n) => (
+            <LabeledTextarea key={n.key} label={n.label} value={data[n.key]} onChange={(v) => set(n.key, v)} rows={2} placeholder={n.placeholder} />
+          ))}
+        </div>
       </SubSection>
 
       <SubSection icon={Stethoscope} title="Escalas clínicas" color="text-[#00A8B5]">
