@@ -362,8 +362,16 @@ async function generateEducationalPlan(patientData, diagnosis) {
   const config = await loadConfig();
   const basePrompt = config?.prompt_educational || "Actúa como enfermero educador. Genera un plan educativo estructurado para el paciente y cuidador.";
   const result = await invokeAI({
-    prompt: `${basePrompt}\n\nDatos del paciente:\n${JSON.stringify(patientData, null, 2)}\n\nDiagnóstico:\n${diagnosis}`,
-    action: "generate_educational"
+    prompt: `${basePrompt}\n\nDatos del paciente:\n${JSON.stringify(patientData, null, 2)}\n\nDiagnóstico o condición:\n${diagnosis}\n\nGenera un plan educativo estructurado en lenguaje sencillo para el paciente y cuidador, e indicaciones de alta claras. Incluye signos de alarma, automonitorego, adherencia terapéutica y seguimiento.`,
+    action: "generate_educational",
+    response_json_schema: {
+      type: "object",
+      properties: {
+        plan: { type: "string", description: "Plan educativo estructurado para el paciente y cuidador" },
+        discharge: { type: "string", description: "Indicaciones de alta y seguimiento" }
+      },
+      required: ["plan", "discharge"]
+    }
   });
   await logAudit("ai_generate", "Plan educativo generado");
   return result;
