@@ -70,62 +70,83 @@ export function exportPaeWord(plan, patient) {
   const blob = new Blob([html], { type: "application/msword" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `PAE-${plan.pae_number || ""}-${plan.patient_name}.doc`; link.click(); URL.revokeObjectURL(link.href);
 }
 
-function labelBar2(doc, label, x, y, w) {
-  doc.setFillColor(...GREEN2); doc.rect(x, y, w, 6, "F");
-  doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(6.5);
-  doc.text(label, x + 2, y + 4, { maxWidth: w - 4 });
+function subBar(doc, label, x, y, w) {
+  doc.setFillColor(...GREEN2); doc.rect(x, y, w, 5, "F");
+  doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(6);
+  doc.text(label, x + 1.5, y + 3.5, { maxWidth: w - 3 });
   doc.setTextColor(0, 0, 0);
-  return y + 6;
+  return y + 5;
 }
 
-function contentBox2(doc, x, y, w, h, content) {
-  doc.setDrawColor(180, 180, 180); doc.rect(x, y, w, h);
-  doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(0, 0, 0);
-  text(doc, content || "—", x + 2, y + 5, { maxWidth: w - 4, lineHeight: 4 });
-  return y + h;
+function boxBorder(doc, x, y, w, h) {
+  doc.setDrawColor(0, 0, 0); doc.setLineWidth(0.3); doc.rect(x, y, w, h);
+}
+
+function bulletsText(doc, items, x, y, w, lh = 4) {
+  let cy = y;
+  (items || []).forEach(it => { cy = text(doc, `• ${it}`, x, cy, { maxWidth: w, lineHeight: lh }); });
+  return cy;
 }
 
 export function exportPaeIntraPdf(plan, patient) {
   const doc = new jsPDF(); let y = 18; const p = patient || { full_name: plan.patient_name, code: plan.medical_record };
   const age = p.birth_date ? `${moment().diff(moment(p.birth_date), "years")} años` : "—";
-  doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.setTextColor(...GREEN2); doc.text("AREANDINA", 15, y); doc.setTextColor(0, 0, 0); doc.setFontSize(8); doc.text("FACULTAD CIENCIAS DE LA SALUD\nENFERMERÍA", 80, y - 4, { align: "center" });
+  const leftX = 15, rightX = 105, colW = 90;
+  doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.setTextColor(...GREEN2); doc.text("AREANDINA", 15, y);
+  doc.setFontSize(7); doc.setTextColor(0, 0, 0); doc.text("Fundación Universitaria del Área Andina", 15, y + 4);
+  doc.setFontSize(8); doc.text("FACULTAD CIENCIAS DE LA SALUD\nENFERMERÍA", 105, y - 4, { align: "center" });
   doc.setFontSize(7); [["VERSIÓN:", plan.version || "01"], ["CÓDIGO:", plan.code || "—"], ["FECHA:", plan.pae_date || "—"]].forEach(([l, v], i) => { doc.text(l, 155, y - 6 + i * 5); doc.text(v, 172, y - 6 + i * 5); });
-  y += 8; doc.setDrawColor(...GREEN2); doc.setLineWidth(0.8); doc.line(15, y, 195, y); y += 4;
-  doc.setFillColor(...GREEN2); doc.rect(15, y, 180, 7, "F"); doc.setTextColor(255, 255, 255); doc.setFontSize(10); doc.text("PLAN DE ATENCIÓN DE ENFERMERÍA", 105, y + 5, { align: "center" }); doc.setTextColor(0, 0, 0); y += 10;
-  const rows = [["NOMBRES APELLIDOS", p.full_name, "SERVICIO", plan.service], ["EDAD", age, "N.° DE CAMA", plan.bed_number], ["N.° DE HISTORIA CLÍNICA", plan.medical_record || p.code, "N.° DE INGRESO", plan.admission_number]];
-  rows.forEach(([l1, v1, l2, v2]) => { const h1 = cell(doc, l1, v1, 15, y, 90); const h2 = cell(doc, l2, v2, 105, y, 90); y += Math.max(h1, h2) + 1; });
-  doc.setFillColor(...GREEN2); doc.rect(15, y, 180, 6, "F"); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.text("DIAGNÓSTICO MÉDICO", 17, y + 4); doc.setTextColor(0, 0, 0); y += 6;
-  doc.setDrawColor(180, 180, 180); doc.rect(15, y, 180, 12); y = text(doc, plan.medical_diagnosis || "—", 17, y + 5, { maxWidth: 176 }) + 4;
+  y += 8; doc.setDrawColor(0, 0, 0); doc.setLineWidth(0.8); doc.line(15, y, 195, y); y += 4;
+  doc.setFillColor(212, 237, 218); doc.rect(15, y, 180, 7, "F"); doc.setTextColor(0, 0, 0); doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.text("PLAN DE ATENCIÓN DE ENFERMERÍA", 105, y + 5, { align: "center" }); y += 7;
+  const rows = [["NOMBRES Y APELLIDOS", p.full_name, "SERVICIO", plan.service], ["EDAD", age, "N.° DE CAMA", plan.bed_number], ["N.° DE HISTORIA CLÍNICA", plan.medical_record || p.code, "N.° DE INGRESO", plan.admission_number]];
+  rows.forEach(([l1, v1, l2, v2]) => { const h1 = cell(doc, l1, v1, 15, y, 90); const h2 = cell(doc, l2, v2, 105, y, 90); y += Math.max(h1, h2) + 0.5; });
+  boxBorder(doc, 15, y, 180, 12); doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(100, 100, 100); doc.text("DIAGNÓSTICO MÉDICO", 17, y + 4); doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(0, 0, 0); text(doc, plan.medical_diagnosis || "—", 17, y + 8, { maxWidth: 176, lineHeight: 4 }); y += 14;
 
   const diagnoses = plan.diagnoses?.length ? plan.diagnoses : [{}];
   diagnoses.forEach((d, i) => {
     const o = plan.outcomes?.[i] || {}; const n = plan.interventions?.[i] || {};
     if (i > 0) { doc.addPage(); y = 18; }
-    if (y > 190) { doc.addPage(); y = 18; }
-    const leftX = 15, rightX = 105, colW = 90;
-    let ly = y, ry = y;
-    ly = labelBar2(doc, "DIAGNÓSTICO ENFERMERO (ETIQUETA NANDA)", leftX, ly, colW);
-    ly = contentBox2(doc, leftX, ly, colW, 20, `${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}${d.definition ? `\nDefinición: ${d.definition}` : ""}`);
-    ry = labelBar2(doc, "INTERVENCIÓN: (NIC)", rightX, ry, colW);
-    ry = contentBox2(doc, rightX, ry, colW, 20, `${n.nic || "—"} ${n.code ? `(${n.code})` : ""}`);
+    const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
+    const chars = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
+    const education = (plan.patient_education || "").split("\n").filter(Boolean);
+    const followup = (plan.follow_up || "").split("\n").filter(Boolean);
 
-    ly = labelBar2(doc, "FACTORES RELACIONADOS: (CAUSAS) E:", leftX, ly, colW);
-    ly = contentBox2(doc, leftX, ly, colW, 18, d.related_to);
-    ry = labelBar2(doc, "ACTIVIDADES:", rightX, ry, colW);
-
-    ly = labelBar2(doc, "CARACTERISTICAS DEFINITORIAS (SIGNOS Y SINTOMAS)", leftX, ly, colW);
-    ly = contentBox2(doc, leftX, ly, colW, 18, d.evidence);
-
-    ly = labelBar2(doc, "RESULTADO ESPERADO: (NOC)", leftX, ly, colW);
-    ly = contentBox2(doc, leftX, ly, colW, 22, `${o.noc || "—"} ${o.code ? `(${o.code})` : ""}${o.indicators?.length ? "\n" + o.indicators.map(x => `• ${x}`).join("\n") : ""}`);
-
-    ly = labelBar2(doc, "INDICADORES / ESCALA DE MEDICIÓN/ PUNTUACIÓN DIANA", leftX, ly, colW);
-    ly = contentBox2(doc, leftX, ly, colW, 18, `Escala: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}\nPuntuación Diana: ${plan.diana_score || "—"}`);
-
-    const activitiesText = (n.activities || []).map(a => `• ${a}`).join("\n") + (n.rationale ? `\nFundamentación: ${n.rationale}` : "");
-    ry = contentBox2(doc, rightX, ry, colW, Math.max(20, ly - ry), activitiesText);
-
-    y = ly + 4;
+    const rowH = [30, 36, 30, 30];
+    let ry = y;
+    for (let r = 0; r < 4; r++) {
+      boxBorder(doc, leftX, ry, colW, rowH[r]); boxBorder(doc, rightX, ry, colW, rowH[r]);
+      let ly = ry, ryt = ry;
+      if (r === 0) {
+        ly = subBar(doc, "DIAGNÓSTICO ENFERMERO (ETIQUETA NANDA)", leftX, ly, colW);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8); ly = text(doc, `${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}`, leftX + 2, ly + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
+        doc.setFont("helvetica", "normal"); ly = text(doc, `Relacionado con ${d.related_to || "—"}, manifestado por ${d.evidence || "—"}.`, leftX + 2, ly, { maxWidth: colW - 4, lineHeight: 4 });
+        ryt = subBar(doc, "INTERVENCIÓN: (NIC)", rightX, ryt, colW);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8); ryt = text(doc, `${n.nic || "—"} ${n.code ? `(${n.code})` : ""}`, rightX + 2, ryt + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
+        doc.setFont("helvetica", "normal"); ryt = bulletsText(doc, n.activities, rightX + 2, ryt, colW - 4);
+      } else if (r === 1) {
+        ly = subBar(doc, "FACTORES RELACIONADOS: (CAUSAS) E:", leftX, ly, colW);
+        ly = bulletsText(doc, factors, leftX + 2, ly + 1, colW - 4) + 2;
+        ly = subBar(doc, "CARACTERÍSTICAS DEFINITORIAS (SIGNOS Y SÍNTOMAS)", leftX, ly, colW);
+        ly = bulletsText(doc, chars, leftX + 2, ly + 1, colW - 4);
+        ryt = subBar(doc, "ACTIVIDADES:", rightX, ryt, colW);
+        ryt = bulletsText(doc, n.activities, rightX + 2, ryt + 1, colW - 4);
+      } else if (r === 2) {
+        ly = subBar(doc, "RESULTADO ESPERADO: (NOC)", leftX, ly, colW);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8); ly = text(doc, `${o.noc || "—"} ${o.code ? `(${o.code})` : ""}`, leftX + 2, ly + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
+        doc.setFont("helvetica", "normal"); ly = text(doc, o.definition || "", leftX + 2, ly, { maxWidth: colW - 4, lineHeight: 4 });
+        ryt = subBar(doc, "INDICADORES / ESCALA DE MEDICIÓN / PUNTUACIÓN DIANA", rightX, ryt, colW);
+        ryt = bulletsText(doc, o.indicators, rightX + 2, ryt + 1, colW - 4) + 1;
+        doc.setFont("helvetica", "normal"); ryt = text(doc, `Escala: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}`, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
+        doc.setFont("helvetica", "bold"); ryt = text(doc, `Puntuación Diana: ${plan.diana_score || "—"}`, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 4 });
+      } else {
+        ly = subBar(doc, "EDUCACIÓN AL PACIENTE Y CUIDADOR", leftX, ly, colW);
+        ly = bulletsText(doc, education, leftX + 2, ly + 1, colW - 4);
+        ryt = subBar(doc, "RECOMENDACIONES DE SEGUIMIENTO", rightX, ryt, colW);
+        ryt = bulletsText(doc, followup, rightX + 2, ryt + 1, colW - 4);
+      }
+      ry += rowH[r];
+    }
+    y = ry + 4;
   });
   doc.save(`PAE-Intrahospitalario-${plan.patient_name || ""}.pdf`);
 }
@@ -133,29 +154,35 @@ export function exportPaeIntraPdf(plan, patient) {
 export function exportPaeIntraWord(plan, patient) {
   const p = patient || { full_name: plan.patient_name, code: plan.medical_record };
   const age = p.birth_date ? `${moment().diff(moment(p.birth_date), "years")} años` : "—";
-  const head = (label) => `<div style="background:#8DC63F;color:#fff;font-weight:bold;padding:4px;font-size:11px">${label}</div>`;
+  const head = (label) => `<div style="background:#8DC63F;color:#fff;font-weight:bold;padding:3px;font-size:10px;text-transform:uppercase">${label}</div>`;
+  const bul = (items) => (items?.length ? `<ul style="margin:4px 0;padding-left:18px">${items.map(x => `<li>${x}</li>`).join("")}</ul>` : "—");
   const diagnoses = plan.diagnoses?.length ? plan.diagnoses : [{}];
   const blocks = diagnoses.map((d, i) => {
     const o = plan.outcomes?.[i] || {}; const n = plan.interventions?.[i] || {};
-    const nandaHtml = `${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}${d.definition ? `<br>Definición: ${d.definition}` : ""}`;
-    const nicHtml = `${n.nic || "—"} ${n.code ? `(${n.code})` : ""}`;
-    const activitiesHtml = (n.activities || []).map(a => `• ${a}`).join("<br>") + (n.rationale ? `<br><b>Fundamentación:</b> ${n.rationale}` : "");
-    const nocHtml = `${o.noc || "—"} ${o.code ? `(${o.code})` : ""}${o.indicators?.length ? "<br>" + o.indicators.map(x => `• ${x}`).join("<br>") : ""}`;
-    const indHtml = `Escala: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}<br>Puntuación Diana: ${plan.diana_score || "—"}`;
-    return `<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;margin-bottom:16px">
-      <tr><td style="width:50%">${head("DIAGNÓSTICO ENFERMERO (ETIQUETA NANDA)")}<div style="padding:6px">${nandaHtml}</div></td><td style="width:50%">${head("INTERVENCIÓN: (NIC)")}<div style="padding:6px">${nicHtml}</div></td></tr>
-      <tr><td>${head("FACTORES RELACIONADOS: (CAUSAS) E:")}<div style="padding:6px">${d.related_to || "—"}</div></td><td rowspan="4">${head("ACTIVIDADES:")}<div style="padding:6px">${activitiesHtml}</div></td></tr>
-      <tr><td>${head("CARACTERISTICAS DEFINITORIAS (SIGNOS Y SINTOMAS)")}<div style="padding:6px">${d.evidence || "—"}</div></td></tr>
-      <tr><td>${head("RESULTADO ESPERADO: (NOC)")}<div style="padding:6px">${nocHtml}</div></td></tr>
-      <tr><td>${head("INDICADORES / ESCALA DE MEDICIÓN/ PUNTUACIÓN DIANA")}<div style="padding:6px">${indHtml}</div></td></tr>
+    const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
+    const chars = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
+    const education = (plan.patient_education || "").split("\n").filter(Boolean);
+    const followup = (plan.follow_up || "").split("\n").filter(Boolean);
+    const nandaHtml = `<b>${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}</b><br>Relacionado con ${d.related_to || "—"}, manifestado por ${d.evidence || "—"}.`;
+    const nicHtml = `<b>${n.nic || "—"} ${n.code ? `(${n.code})` : ""}</b>${bul(n.activities)}`;
+    const factorsHtml = `${head("Factores Relacionados: (Causas) E:")}${bul(factors)}${head("Características Definitorias (Signos y Síntomas)")}${bul(chars)}`;
+    const nocHtml = `<b>${o.noc || "—"} ${o.code ? `(${o.code})` : ""}</b><br>${o.definition || ""}`;
+    const indHtml = `${bul(o.indicators)}Escala: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}<br><b>Puntuación Diana: ${plan.diana_score || "—"}</b>`;
+    return `<table border="1" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #000;margin-bottom:16px">
+      <tr><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Diagnóstico Enfermero (Etiqueta NANDA)")}<div style="padding:4px">${nandaHtml}</div></td><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Intervención: (NIC)")}<div style="padding:4px">${nicHtml}</div></td></tr>
+      <tr><td style="border:1px solid #000;vertical-align:top">${factorsHtml}</td><td style="border:1px solid #000;vertical-align:top">${head("Actividades:")}${bul(n.activities)}</td></tr>
+      <tr><td style="border:1px solid #000;vertical-align:top">${head("Resultado Esperado: (NOC)")}<div style="padding:4px">${nocHtml}</div></td><td style="border:1px solid #000;vertical-align:top">${head("Indicadores / Escala de Medición / Puntuación Diana")}<div style="padding:4px">${indHtml}</div></td></tr>
+      <tr><td style="border:1px solid #000;vertical-align:top">${head("Educación al Paciente y Cuidador")}${bul(education)}</td><td style="border:1px solid #000;vertical-align:top">${head("Recomendaciones de Seguimiento")}${bul(followup)}</td></tr>
     </table>`;
   }).join("");
   const html = `<html><meta charset="utf-8"><body style="font-family:Arial">
-  <h2 style="color:#8DC63F">AREANDINA — Facultad Ciencias de la Salud — Enfermería</h2>
-  <p>Versión: ${plan.version || "01"} | Código: ${plan.code || "—"} | Fecha: ${plan.pae_date || "—"}</p>
-  <h3 style="background:#8DC63F;color:#fff;padding:4px">PLAN DE ATENCIÓN DE ENFERMERÍA</h3>
-  <table border="1" cellpadding="4"><tr><td><b>Nombres Apellidos:</b> ${p.full_name}</td><td><b>Servicio:</b> ${plan.service || "—"}</td></tr><tr><td><b>Edad:</b> ${age}</td><td><b>N.° de Cama:</b> ${plan.bed_number || "—"}</td></tr><tr><td><b>N.° Historia Clínica:</b> ${plan.medical_record || p.code}</td><td><b>N.° de Ingreso:</b> ${plan.admission_number || "—"}</td></tr></table>
-  <p><b>Diagnóstico Médico:</b> ${plan.medical_diagnosis || "—"}</p>
+  <div style="display:flex;justify-content:space-between;border-bottom:2px solid #000;padding-bottom:6px">
+    <div><div style="font-size:20px;font-weight:bold;color:#8DC63F">AREANDINA</div><div style="font-size:10px">Fundación Universitaria del Área Andina</div></div>
+    <div style="text-align:center;font-weight:bold;font-size:11px">FACULTAD CIENCIAS DE LA SALUD<br>ENFERMERÍA</div>
+    <table style="font-size:10px;border-collapse:collapse"><tr><td style="border:1px solid #000;padding:2px"><b>VERSIÓN:</b></td><td style="border:1px solid #000;padding:2px">${plan.version || "01"}</td></tr><tr><td style="border:1px solid #000;padding:2px"><b>CÓDIGO:</b></td><td style="border:1px solid #000;padding:2px">${plan.code || "—"}</td></tr><tr><td style="border:1px solid #000;padding:2px"><b>FECHA:</b></td><td style="border:1px solid #000;padding:2px">${plan.pae_date || "—"}</td></tr></table>
+  </div>
+  <div style="background:#d4edda;text-align:center;font-weight:bold;padding:6px;margin:8px 0">PLAN DE ATENCIÓN DE ENFERMERÍA</div>
+  <table border="1" cellpadding="4" style="width:100%;border-collapse:collapse;border:1px solid #000"><tr><td><b>Nombres y Apellidos:</b> ${p.full_name}</td><td><b>Servicio:</b> ${plan.service || "—"}</td></tr><tr><td><b>Edad:</b> ${age}</td><td><b>N° de Cama:</b> ${plan.bed_number || "—"}</td></tr><tr><td><b>N° Historia Clínica:</b> ${plan.medical_record || p.code}</td><td><b>N° de Ingreso:</b> ${plan.admission_number || "—"}</td></tr><tr><td colspan="2"><b>Diagnóstico Médico:</b> ${plan.medical_diagnosis || "—"}</td></tr></table>
   ${blocks}
   </body></html>`;
   const blob = new Blob([html], { type: "application/msword" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `PAE-Intrahospitalario-${plan.patient_name || ""}.doc`; link.click(); URL.revokeObjectURL(link.href);
