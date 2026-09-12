@@ -1,6 +1,7 @@
 import { ArrowLeft, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { exportPaePdf, exportPaeWord } from "@/lib/exportPlan";
+import PaeDocumentIntra from "@/components/pae/PaeDocumentIntra";
 
 function Cell({ label, value, className = "" }) {
   return <div className={`border border-slate-300 px-2 py-1.5 ${className}`}><span className="text-[10px] font-bold uppercase text-slate-500">{label}</span><p className="text-sm text-slate-900">{value || "—"}</p></div>;
@@ -11,6 +12,7 @@ function SectionBar({ children }) {
 }
 
 export default function PaeDocument({ plan, patient, onBack }) {
+  if (plan.pae_type === "intrahospitalario") return <PaeDocumentIntra plan={plan} patient={patient} onBack={onBack} />;
   const p = patient || { full_name: plan.patient_name, code: plan.medical_record, birth_date: null };
   return <div className="min-h-screen bg-slate-100 py-6 print:bg-white print:py-0">
     <div className="mx-auto max-w-5xl px-4 print:px-0">
