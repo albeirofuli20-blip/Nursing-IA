@@ -25,6 +25,9 @@ export default function useStructuredCapture(onSaved) {
         plans.map((plan) =>
           base44.entities.CarePlan.create({
             ...plan,
+            service: captureData.service,
+            bed_number: captureData.bed_number,
+            admission_number: captureData.admission_number,
             patient_id: patient.id,
             patient_name: patient.full_name,
             pae_type: paeType,

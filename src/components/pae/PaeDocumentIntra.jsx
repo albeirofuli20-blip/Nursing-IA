@@ -19,10 +19,11 @@ function Bullets({ items }) {
   return <ul className="ml-4 list-disc text-xs text-black">{items.map((x, i) => <li key={i}>{x}</li>)}</ul>;
 }
 
-function DiagnosesPage({ plan, d, o, n, i }) {
+function DiagnosesPage({ plan, d, o, allInterventions, i }) {
   const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
   const characteristics = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
   const indicators = o.indicators || [];
+  const allActivities = allInterventions.flatMap(itv => itv.activities || []);
   return <div className={`border border-black ${i > 0 ? "break-before-page mt-4" : ""}`}>
     <table className="w-full border-collapse text-xs">
       <tbody>
@@ -36,10 +37,11 @@ function DiagnosesPage({ plan, d, o, n, i }) {
             </div>
           </td>
           <td className="align-top" style={{ width: "50%", border: "1px solid #000" }}>
-            <SubHeader>Intervención: (NIC)</SubHeader>
+            <SubHeader>Intervenciones: (NIC) — Mínimo 3</SubHeader>
             <div className="p-2 text-black">
-              <p className="font-bold">{n.nic || "—"} {n.code && `(${n.code})`}</p>
-              <Bullets items={n.activities} />
+              <ul className="ml-4 list-disc">
+                {allInterventions.map((itv, j) => <li key={j}><b>{itv.nic || "—"}</b> {itv.code && `(${itv.code})`}</li>)}
+              </ul>
             </div>
           </td>
         </tr>
@@ -52,8 +54,8 @@ function DiagnosesPage({ plan, d, o, n, i }) {
             <div className="p-2"><Bullets items={characteristics} /></div>
           </td>
           <td className="align-top" style={{ border: "1px solid #000" }}>
-            <SubHeader>Actividades:</SubHeader>
-            <div className="p-2"><Bullets items={n.activities} /></div>
+            <SubHeader>Actividades (de todas las intervenciones, ordenadas por importancia):</SubHeader>
+            <div className="p-2"><Bullets items={allActivities} /></div>
           </td>
         </tr>
         {/* Row 3 */}
@@ -111,10 +113,10 @@ export default function PaeDocumentIntra({ plan, patient, onBack }) {
         <section className="grid grid-cols-2 gap-0">
           <Cell label="Nombres y Apellidos" value={p.full_name} /><Cell label="Servicio" value={plan.service} />
           <Cell label="Edad" value={age} /><Cell label="N° de Cama" value={plan.bed_number} />
-          <Cell label="N° de Historia Clínica" value={plan.medical_record || p.code} /><Cell label="N° de Ingreso" value={plan.admission_number} />
+          <Cell label="Cédula / N° de Historia Clínica" value={p.code || plan.medical_record} /><Cell label="N° de Ingreso" value={plan.admission_number} />
           <div className="col-span-2 border border-black px-2 py-1"><span className="text-[10px] font-bold uppercase text-slate-700">Diagnóstico Médico</span><p className="text-sm text-black">{plan.medical_diagnosis || "—"}</p></div>
         </section>
-        {diagnoses.map((d, i) => <DiagnosesPage key={i} plan={plan} d={d} o={plan.outcomes?.[i] || {}} n={plan.interventions?.[i] || {}} i={i} />)}
+        {diagnoses.map((d, i) => <DiagnosesPage key={i} plan={plan} d={d} o={plan.outcomes?.[i] || {}} allInterventions={plan.interventions || []} i={i} />)}
       </div>
     </div>
   </div>;

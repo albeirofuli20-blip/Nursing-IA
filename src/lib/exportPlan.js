@@ -98,20 +98,20 @@ export function exportPaeIntraPdf(plan, patient) {
   doc.setFontSize(7); [["VERSIÓN:", plan.version || "01"], ["CÓDIGO:", plan.code || "—"], ["FECHA:", plan.pae_date || "—"]].forEach(([l, v], i) => { doc.text(l, 155, y - 6 + i * 5); doc.text(v, 172, y - 6 + i * 5); });
   y += 8; doc.setDrawColor(0, 0, 0); doc.setLineWidth(0.8); doc.line(15, y, 195, y); y += 4;
   doc.setFillColor(212, 237, 218); doc.rect(15, y, 180, 7, "F"); doc.setTextColor(0, 0, 0); doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.text("PLAN DE ATENCIÓN DE ENFERMERÍA", 105, y + 5, { align: "center" }); y += 7;
-  const rows = [["NOMBRES Y APELLIDOS", p.full_name, "SERVICIO", plan.service], ["EDAD", age, "N.° DE CAMA", plan.bed_number], ["N.° DE HISTORIA CLÍNICA", plan.medical_record || p.code, "N.° DE INGRESO", plan.admission_number]];
+  const rows = [["NOMBRES Y APELLIDOS", p.full_name, "SERVICIO", plan.service], ["EDAD", age, "N.° DE CAMA", plan.bed_number], ["CÉDULA / N.° DE HISTORIA CLÍNICA", p.code || plan.medical_record, "N.° DE INGRESO", plan.admission_number]];
   rows.forEach(([l1, v1, l2, v2]) => { const h1 = cell(doc, l1, v1, 15, y, 90); const h2 = cell(doc, l2, v2, 105, y, 90); y += Math.max(h1, h2) + 0.5; });
   boxBorder(doc, 15, y, 180, 12); doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(100, 100, 100); doc.text("DIAGNÓSTICO MÉDICO", 17, y + 4); doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(0, 0, 0); text(doc, plan.medical_diagnosis || "—", 17, y + 8, { maxWidth: 176, lineHeight: 4 }); y += 14;
 
   const diagnoses = plan.diagnoses?.length ? plan.diagnoses : [{}];
   diagnoses.forEach((d, i) => {
-    const o = plan.outcomes?.[i] || {}; const n = plan.interventions?.[i] || {};
+    const o = plan.outcomes?.[i] || {}; const allInterventions = plan.interventions || []; const allActivities = allInterventions.flatMap(itv => itv.activities || []);
     if (i > 0) { doc.addPage(); y = 18; }
     const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
     const chars = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
     const education = (plan.patient_education || "").split("\n").filter(Boolean);
     const followup = (plan.follow_up || "").split("\n").filter(Boolean);
 
-    const rowH = [30, 36, 30, 30];
+    const rowH = [42, 42, 30, 30];
     let ry = y;
     for (let r = 0; r < 4; r++) {
       boxBorder(doc, leftX, ry, colW, rowH[r]); boxBorder(doc, rightX, ry, colW, rowH[r]);
@@ -120,16 +120,15 @@ export function exportPaeIntraPdf(plan, patient) {
         ly = subBar(doc, "DIAGNÓSTICO ENFERMERO (ETIQUETA NANDA)", leftX, ly, colW);
         doc.setFont("helvetica", "bold"); doc.setFontSize(8); ly = text(doc, `${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}`, leftX + 2, ly + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
         doc.setFont("helvetica", "normal"); ly = text(doc, `Relacionado con ${d.related_to || "—"}, manifestado por ${d.evidence || "—"}.`, leftX + 2, ly, { maxWidth: colW - 4, lineHeight: 4 });
-        ryt = subBar(doc, "INTERVENCIÓN: (NIC)", rightX, ryt, colW);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(8); ryt = text(doc, `${n.nic || "—"} ${n.code ? `(${n.code})` : ""}`, rightX + 2, ryt + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
-        doc.setFont("helvetica", "normal"); ryt = bulletsText(doc, n.activities, rightX + 2, ryt, colW - 4);
+        ryt = subBar(doc, "INTERVENCIONES: (NIC) — MÍNIMO 3", rightX, ryt, colW);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); let nicY = ryt + 3; allInterventions.forEach((itv) => { nicY = text(doc, `• ${itv.nic || "—"} ${itv.code ? `(${itv.code})` : ""}`, rightX + 2, nicY, { maxWidth: colW - 4, lineHeight: 3.5 }); });
       } else if (r === 1) {
         ly = subBar(doc, "FACTORES RELACIONADOS: (CAUSAS) E:", leftX, ly, colW);
         ly = bulletsText(doc, factors, leftX + 2, ly + 1, colW - 4) + 2;
         ly = subBar(doc, "CARACTERÍSTICAS DEFINITORIAS (SIGNOS Y SÍNTOMAS)", leftX, ly, colW);
         ly = bulletsText(doc, chars, leftX + 2, ly + 1, colW - 4);
-        ryt = subBar(doc, "ACTIVIDADES:", rightX, ryt, colW);
-        ryt = bulletsText(doc, n.activities, rightX + 2, ryt + 1, colW - 4);
+        ryt = subBar(doc, "ACTIVIDADES (TODAS LAS INTERVENCIONES, ORDENADAS POR IMPORTANCIA):", rightX, ryt, colW);
+        ryt = bulletsText(doc, allActivities, rightX + 2, ryt + 1, colW - 4);
       } else if (r === 2) {
         ly = subBar(doc, "RESULTADO ESPERADO: (NOC)", leftX, ly, colW);
         doc.setFont("helvetica", "bold"); doc.setFontSize(8); ly = text(doc, `${o.noc || "—"} ${o.code ? `(${o.code})` : ""}`, leftX + 2, ly + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
@@ -158,19 +157,19 @@ export function exportPaeIntraWord(plan, patient) {
   const bul = (items) => (items?.length ? `<ul style="margin:4px 0;padding-left:18px">${items.map(x => `<li>${x}</li>`).join("")}</ul>` : "—");
   const diagnoses = plan.diagnoses?.length ? plan.diagnoses : [{}];
   const blocks = diagnoses.map((d, i) => {
-    const o = plan.outcomes?.[i] || {}; const n = plan.interventions?.[i] || {};
+    const o = plan.outcomes?.[i] || {}; const allInterventions = plan.interventions || []; const allActivities = allInterventions.flatMap(itv => itv.activities || []);
     const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
     const chars = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
     const education = (plan.patient_education || "").split("\n").filter(Boolean);
     const followup = (plan.follow_up || "").split("\n").filter(Boolean);
     const nandaHtml = `<b>${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}</b><br>Relacionado con ${d.related_to || "—"}, manifestado por ${d.evidence || "—"}.`;
-    const nicHtml = `<b>${n.nic || "—"} ${n.code ? `(${n.code})` : ""}</b>${bul(n.activities)}`;
+    const nicHtml = `<ul style="margin:4px 0;padding-left:18px">${allInterventions.map(itv => `<li><b>${itv.nic || "—"}</b> ${itv.code ? `(${itv.code})` : ""}</li>`).join("")}</ul>`;
     const factorsHtml = `${head("Factores Relacionados: (Causas) E:")}${bul(factors)}${head("Características Definitorias (Signos y Síntomas)")}${bul(chars)}`;
     const nocHtml = `<b>${o.noc || "—"} ${o.code ? `(${o.code})` : ""}</b><br>${o.definition || ""}`;
     const indHtml = `${bul(o.indicators)}Escala: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}<br><b>Puntuación Diana: ${plan.diana_score || "—"}</b>`;
     return `<table border="1" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #000;margin-bottom:16px">
-      <tr><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Diagnóstico Enfermero (Etiqueta NANDA)")}<div style="padding:4px">${nandaHtml}</div></td><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Intervención: (NIC)")}<div style="padding:4px">${nicHtml}</div></td></tr>
-      <tr><td style="border:1px solid #000;vertical-align:top">${factorsHtml}</td><td style="border:1px solid #000;vertical-align:top">${head("Actividades:")}${bul(n.activities)}</td></tr>
+      <tr><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Diagnóstico Enfermero (Etiqueta NANDA)")}<div style="padding:4px">${nandaHtml}</div></td><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Intervenciones: (NIC) — Mínimo 3")}<div style="padding:4px">${nicHtml}</div></td></tr>
+      <tr><td style="border:1px solid #000;vertical-align:top">${factorsHtml}</td><td style="border:1px solid #000;vertical-align:top">${head("Actividades (de todas las intervenciones, ordenadas por importancia):")}${bul(allActivities)}</td></tr>
       <tr><td style="border:1px solid #000;vertical-align:top">${head("Resultado Esperado: (NOC)")}<div style="padding:4px">${nocHtml}</div></td><td style="border:1px solid #000;vertical-align:top">${head("Indicadores / Escala de Medición / Puntuación Diana")}<div style="padding:4px">${indHtml}</div></td></tr>
       <tr><td style="border:1px solid #000;vertical-align:top">${head("Educación al Paciente y Cuidador")}${bul(education)}</td><td style="border:1px solid #000;vertical-align:top">${head("Recomendaciones de Seguimiento")}${bul(followup)}</td></tr>
     </table>`;
@@ -182,7 +181,7 @@ export function exportPaeIntraWord(plan, patient) {
     <table style="font-size:10px;border-collapse:collapse"><tr><td style="border:1px solid #000;padding:2px"><b>VERSIÓN:</b></td><td style="border:1px solid #000;padding:2px">${plan.version || "01"}</td></tr><tr><td style="border:1px solid #000;padding:2px"><b>CÓDIGO:</b></td><td style="border:1px solid #000;padding:2px">${plan.code || "—"}</td></tr><tr><td style="border:1px solid #000;padding:2px"><b>FECHA:</b></td><td style="border:1px solid #000;padding:2px">${plan.pae_date || "—"}</td></tr></table>
   </div>
   <div style="background:#d4edda;text-align:center;font-weight:bold;padding:6px;margin:8px 0">PLAN DE ATENCIÓN DE ENFERMERÍA</div>
-  <table border="1" cellpadding="4" style="width:100%;border-collapse:collapse;border:1px solid #000"><tr><td><b>Nombres y Apellidos:</b> ${p.full_name}</td><td><b>Servicio:</b> ${plan.service || "—"}</td></tr><tr><td><b>Edad:</b> ${age}</td><td><b>N° de Cama:</b> ${plan.bed_number || "—"}</td></tr><tr><td><b>N° Historia Clínica:</b> ${plan.medical_record || p.code}</td><td><b>N° de Ingreso:</b> ${plan.admission_number || "—"}</td></tr><tr><td colspan="2"><b>Diagnóstico Médico:</b> ${plan.medical_diagnosis || "—"}</td></tr></table>
+  <table border="1" cellpadding="4" style="width:100%;border-collapse:collapse;border:1px solid #000"><tr><td><b>Nombres y Apellidos:</b> ${p.full_name}</td><td><b>Servicio:</b> ${plan.service || "—"}</td></tr><tr><td><b>Edad:</b> ${age}</td><td><b>N° de Cama:</b> ${plan.bed_number || "—"}</td></tr><tr><td><b>Cédula / N° Historia Clínica:</b> ${p.code || plan.medical_record}</td><td><b>N° de Ingreso:</b> ${plan.admission_number || "—"}</td></tr><tr><td colspan="2"><b>Diagnóstico Médico:</b> ${plan.medical_diagnosis || "—"}</td></tr></table>
   ${blocks}
   </body></html>`;
   const blob = new Blob([html], { type: "application/msword" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `PAE-Intrahospitalario-${plan.patient_name || ""}.doc`; link.click(); URL.revokeObjectURL(link.href);

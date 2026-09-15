@@ -10,7 +10,7 @@ export function Step1Identification({ data, set }) {
         <LabeledSelect label="Tipo de PAE" value={data.pae_type} onChange={(v) => set("pae_type", v)} options={["Intrahospitalario", "Comunitario"]} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <LabeledInput label="Nombre o código" value={data.code} onChange={(v) => set("code", v)} placeholder="Ej. P-001" />
+        <LabeledInput label="Cédula" value={data.code} onChange={(v) => set("code", v)} placeholder="Ej. 1065627633" />
         <LabeledInput label="Nombre completo" value={data.full_name} onChange={(v) => set("full_name", v)} placeholder="Nombre del paciente" />
         <LabeledInput label="Edad" value={data.age} onChange={(v) => set("age", v)} placeholder="Años" />
         <LabeledInput label="Fecha de nacimiento" type="date" value={data.birth_date} onChange={(v) => set("birth_date", v)} />
@@ -18,7 +18,11 @@ export function Step1Identification({ data, set }) {
         <LabeledSelect label="Sexo" value={data.sex} onChange={(v) => set("sex", v)} options={["Femenino", "Masculino", "Otro", "No especificado"]} />
         <LabeledInput label="Peso (kg)" value={data.weight} onChange={(v) => set("weight", v)} placeholder="Ej. 70" />
         <LabeledInput label="Talla (cm)" value={data.height} onChange={(v) => set("height", v)} placeholder="Ej. 165" />
-        <LabeledInput label="Servicio" value={data.service} onChange={(v) => set("service", v)} placeholder="Ej. Hospitalización" />
+        <LabeledSelect label="Servicio" value={data.service} onChange={(v) => set("service", v)} options={["Urgencias", "Hospitalización", "UCI", "Cirugía"]} />
+        {data.pae_type === "Intrahospitalario" && (<>
+          <LabeledInput label="N° de Cama" value={data.bed_number} onChange={(v) => set("bed_number", v)} placeholder="Ej. 518A" />
+          <LabeledInput label="N° de Ingreso" value={data.admission_number} onChange={(v) => set("admission_number", v)} placeholder="Ej. 2702684" />
+        </>)}
         <LabeledInput label="Fecha de valoración" type="date" value={data.date} onChange={(v) => set("date", v)} />
         <LabeledSelect label="Zona" value={data.zone} onChange={(v) => set("zone", v)} options={["Urbana", "Rural"]} />
         <LabeledSelect label="¿Está acompañado?" value={data.accompanied} onChange={(v) => set("accompanied", v)} options={["Sí", "No"]} />
