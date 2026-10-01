@@ -104,14 +104,14 @@ export function exportPaeIntraPdf(plan, patient) {
 
   const diagnoses = plan.diagnoses?.length ? plan.diagnoses : [{}];
   diagnoses.forEach((d, i) => {
-    const o = plan.outcomes?.[i] || {}; const allInterventions = plan.interventions || []; const allActivities = allInterventions.flatMap(itv => itv.activities || []);
+    const o = plan.outcomes?.[i] || {}; const allInterventions = plan.interventions || [];
     if (i > 0) { doc.addPage(); y = 18; }
     const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
     const chars = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
     const education = (plan.patient_education || "").split("\n").filter(Boolean);
     const followup = (plan.follow_up || "").split("\n").filter(Boolean);
 
-    const rowH = [42, 42, 30, 30];
+    const rowH = [42, 60, 42, 30];
     let ry = y;
     for (let r = 0; r < 4; r++) {
       boxBorder(doc, leftX, ry, colW, rowH[r]); boxBorder(doc, rightX, ry, colW, rowH[r]);
@@ -120,23 +120,34 @@ export function exportPaeIntraPdf(plan, patient) {
         ly = subBar(doc, "DIAGNÓSTICO ENFERMERO (ETIQUETA NANDA)", leftX, ly, colW);
         doc.setFont("helvetica", "bold"); doc.setFontSize(8); ly = text(doc, `${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}`, leftX + 2, ly + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
         doc.setFont("helvetica", "normal"); ly = text(doc, `Relacionado con ${d.related_to || "—"}, manifestado por ${d.evidence || "—"}.`, leftX + 2, ly, { maxWidth: colW - 4, lineHeight: 4 });
-        ryt = subBar(doc, "INTERVENCIONES: (NIC) — MÍNIMO 3", rightX, ryt, colW);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); let nicY = ryt + 3; allInterventions.forEach((itv) => { nicY = text(doc, `• ${itv.nic || "—"} ${itv.code ? `(${itv.code})` : ""}`, rightX + 2, nicY, { maxWidth: colW - 4, lineHeight: 3.5 }); });
+        ryt = subBar(doc, "INTERVENCIÓN: (NIC)", rightX, ryt, colW);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); let nicY = ryt + 3; allInterventions.forEach((itv, j) => { nicY = text(doc, `NIC ${j + 1}: ${itv.nic || "—"} ${itv.code ? `(${itv.code})` : ""}`, rightX + 2, nicY, { maxWidth: colW - 4, lineHeight: 3.5 }); });
       } else if (r === 1) {
         ly = subBar(doc, "FACTORES RELACIONADOS: (CAUSAS) E:", leftX, ly, colW);
         ly = bulletsText(doc, factors, leftX + 2, ly + 1, colW - 4) + 2;
         ly = subBar(doc, "CARACTERÍSTICAS DEFINITORIAS (SIGNOS Y SÍNTOMAS)", leftX, ly, colW);
         ly = bulletsText(doc, chars, leftX + 2, ly + 1, colW - 4);
-        ryt = subBar(doc, "ACTIVIDADES (TODAS LAS INTERVENCIONES, ORDENADAS POR IMPORTANCIA):", rightX, ryt, colW);
-        ryt = bulletsText(doc, allActivities, rightX + 2, ryt + 1, colW - 4);
+        ryt = subBar(doc, "ACTIVIDADES:", rightX, ryt, colW);
+        ryt += 1;
+        allInterventions.forEach((itv, j) => {
+          doc.setFont("helvetica", "bold"); doc.setFontSize(7); ryt = text(doc, `NIC ${j + 1}: ${itv.nic || "—"}`, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 3.5 });
+          doc.setFont("helvetica", "normal");
+          (itv.activities || []).forEach((act, k) => { ryt = text(doc, `${k + 1}. ${act}`, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 3.5 }); });
+          ryt += 1;
+        });
       } else if (r === 2) {
         ly = subBar(doc, "RESULTADO ESPERADO: (NOC)", leftX, ly, colW);
         doc.setFont("helvetica", "bold"); doc.setFontSize(8); ly = text(doc, `${o.noc || "—"} ${o.code ? `(${o.code})` : ""}`, leftX + 2, ly + 3, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
         doc.setFont("helvetica", "normal"); ly = text(doc, o.definition || "", leftX + 2, ly, { maxWidth: colW - 4, lineHeight: 4 });
         ryt = subBar(doc, "INDICADORES / ESCALA DE MEDICIÓN / PUNTUACIÓN DIANA", rightX, ryt, colW);
-        ryt = bulletsText(doc, o.indicators, rightX + 2, ryt + 1, colW - 4) + 1;
-        doc.setFont("helvetica", "normal"); ryt = text(doc, `Escala: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}`, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 4 }) + 1;
-        doc.setFont("helvetica", "bold"); ryt = text(doc, `Puntuación Diana: ${plan.diana_score || "—"}`, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 4 });
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7); ryt = text(doc, "Indicadores:", rightX + 2, ryt + 2, { maxWidth: colW - 4, lineHeight: 3.5 });
+        doc.setFont("helvetica", "normal"); ryt = bulletsText(doc, o.indicators, rightX + 2, ryt, colW - 4, 3.5) + 1;
+        if (o.scale_legend?.length) {
+          doc.setFont("helvetica", "bold"); doc.setFontSize(7); ryt = text(doc, "Escala de medición:", rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 3.5 });
+          doc.setFont("helvetica", "normal"); o.scale_legend.forEach((l) => { ryt = text(doc, l, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 3.5 }); });
+          ryt += 1;
+        }
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7); ryt = text(doc, `Puntuación diana: ${o.scale_initial || "—"} → ${o.scale_expected || "—"}`, rightX + 2, ryt, { maxWidth: colW - 4, lineHeight: 3.5 });
       } else {
         ly = subBar(doc, "EDUCACIÓN AL PACIENTE Y CUIDADOR", leftX, ly, colW);
         ly = bulletsText(doc, education, leftX + 2, ly + 1, colW - 4);
@@ -157,19 +168,20 @@ export function exportPaeIntraWord(plan, patient) {
   const bul = (items) => (items?.length ? `<ul style="margin:4px 0;padding-left:18px">${items.map(x => `<li>${x}</li>`).join("")}</ul>` : "—");
   const diagnoses = plan.diagnoses?.length ? plan.diagnoses : [{}];
   const blocks = diagnoses.map((d, i) => {
-    const o = plan.outcomes?.[i] || {}; const allInterventions = plan.interventions || []; const allActivities = allInterventions.flatMap(itv => itv.activities || []);
+    const o = plan.outcomes?.[i] || {}; const allInterventions = plan.interventions || [];
     const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
     const chars = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
     const education = (plan.patient_education || "").split("\n").filter(Boolean);
     const followup = (plan.follow_up || "").split("\n").filter(Boolean);
     const nandaHtml = `<b>${d.nanda || "—"} ${d.code ? `(${d.code})` : ""}</b><br>Relacionado con ${d.related_to || "—"}, manifestado por ${d.evidence || "—"}.`;
-    const nicHtml = `<ul style="margin:4px 0;padding-left:18px">${allInterventions.map(itv => `<li><b>${itv.nic || "—"}</b> ${itv.code ? `(${itv.code})` : ""}</li>`).join("")}</ul>`;
+    const nicHtml = allInterventions.map((itv, j) => `<div><b>NIC ${j + 1}:</b> ${itv.nic || "—"} ${itv.code ? `(${itv.code})` : ""}</div>`).join("");
+    const activitiesHtml = allInterventions.map((itv, j) => `<div style="margin-top:4px"><b>NIC ${j + 1}: ${itv.nic || "—"}</b><ol style="margin:2px 0;padding-left:18px">${(itv.activities || []).map(a => `<li>${a}</li>`).join("")}</ol></div>`).join("");
     const factorsHtml = `${head("Factores Relacionados: (Causas) E:")}${bul(factors)}${head("Características Definitorias (Signos y Síntomas)")}${bul(chars)}`;
     const nocHtml = `<b>${o.noc || "—"} ${o.code ? `(${o.code})` : ""}</b><br>${o.definition || ""}`;
-    const indHtml = `${bul(o.indicators)}Escala: Inicial ${o.scale_initial || "—"} → Esperada ${o.scale_expected || "—"}<br><b>Puntuación Diana: ${plan.diana_score || "—"}</b>`;
+    const indHtml = `<b>Indicadores:</b>${bul(o.indicators)}${o.scale_legend?.length ? `<b>Escala de medición:</b><br>${o.scale_legend.join("<br>")}<br>` : ""}<b>Puntuación diana: ${o.scale_initial || "—"} → ${o.scale_expected || "—"}</b>`;
     return `<table border="1" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #000;margin-bottom:16px">
-      <tr><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Diagnóstico Enfermero (Etiqueta NANDA)")}<div style="padding:4px">${nandaHtml}</div></td><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Intervenciones: (NIC) — Mínimo 3")}<div style="padding:4px">${nicHtml}</div></td></tr>
-      <tr><td style="border:1px solid #000;vertical-align:top">${factorsHtml}</td><td style="border:1px solid #000;vertical-align:top">${head("Actividades (de todas las intervenciones, ordenadas por importancia):")}${bul(allActivities)}</td></tr>
+      <tr><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Diagnóstico Enfermero (Etiqueta NANDA)")}<div style="padding:4px">${nandaHtml}</div></td><td style="width:50%;border:1px solid #000;vertical-align:top">${head("Intervención: (NIC)")}<div style="padding:4px">${nicHtml}</div></td></tr>
+      <tr><td style="border:1px solid #000;vertical-align:top">${factorsHtml}</td><td style="border:1px solid #000;vertical-align:top">${head("Actividades:")}<div style="padding:4px">${activitiesHtml}</div></td></tr>
       <tr><td style="border:1px solid #000;vertical-align:top">${head("Resultado Esperado: (NOC)")}<div style="padding:4px">${nocHtml}</div></td><td style="border:1px solid #000;vertical-align:top">${head("Indicadores / Escala de Medición / Puntuación Diana")}<div style="padding:4px">${indHtml}</div></td></tr>
       <tr><td style="border:1px solid #000;vertical-align:top">${head("Educación al Paciente y Cuidador")}${bul(education)}</td><td style="border:1px solid #000;vertical-align:top">${head("Recomendaciones de Seguimiento")}${bul(followup)}</td></tr>
     </table>`;

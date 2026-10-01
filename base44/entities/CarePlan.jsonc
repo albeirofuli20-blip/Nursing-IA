@@ -97,6 +97,12 @@
               "type": "string"
             }
           },
+          "scale_legend": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "scale_initial": {
             "type": "string"
           },

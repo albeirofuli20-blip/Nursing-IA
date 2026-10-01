@@ -111,8 +111,8 @@ Para cada PAE genera:
 2. Valoración resumida (integrando hallazgos por sistemas y necesidades de Henderson)
 3. Diagnóstico médico (si se puede inferir)
 4. Diagnósticos NANDA-I en formato PES: cada diagnóstico debe expresar Problema (etiqueta NANDA con código, dominio y clase), Etiología (factores relacionados) y Signos/Síntomas (características definitorias evidentes). Incluye definición del diagnóstico.
-5. Resultados NOC: código, indicadores, escala inicial y esperada (1-5)
-6. Intervenciones NIC: mínimo 4 intervenciones bien descriptas, cada una con código, actividades detalladas paso a paso y fundamentación científica
+5. Resultados NOC: código, indicadores, la leyenda completa de la escala de medición (5 niveles, ej. "1 = Dolor grave" ... "5 = Sin dolor") en scale_legend, puntuación inicial y esperada (1-5)
+6. Intervenciones NIC: mínimo 3 intervenciones bien descriptas (ordenadas de la más a la menos importante), cada una con código, un conjunto propio de actividades detalladas y numeradas paso a paso (específicas de esa intervención, no mezcladas con las de otras) y fundamentación científica
 7. Escalas aplicadas: nombre, puntuación, interpretación
 8. Ejecución: plan de implementación
 9. Evaluación: criterios incluyendo comparación de escalas (baseline, seguimiento, alta)
@@ -120,7 +120,7 @@ Para cada PAE genera:
 11. Recomendaciones para el seguimiento y continuidad del caso
 12. Puntuación DIANA si aplica
 
-Genera todos los PAE que la valoración justifique, mínimo 4. Cada PAE debe incluir mínimo 4 intervenciones NIC bien descriptas con actividades detalladas y fundamentación científica.`;
+Genera todos los PAE que la valoración justifique, mínimo 4. Cada PAE debe incluir mínimo 3 intervenciones NIC ordenadas por importancia clínica, cada una con sus propias actividades numeradas (NIC 1, NIC 2, NIC 3...) y fundamentación científica. Cada resultado NOC debe incluir la leyenda completa de su escala de medición (scale_legend).`;
 
   const result = await invokeAI({
     prompt,
@@ -161,6 +161,7 @@ Genera todos los PAE que la valoración justifique, mínimo 4. Cada PAE debe inc
                     noc: { type: "string" },
                     code: { type: "string" },
                     indicators: { type: "array", items: { type: "string" } },
+                    scale_legend: { type: "array", items: { type: "string" } },
                     scale_initial: { type: "string" },
                     scale_expected: { type: "string" }
                   }

@@ -19,11 +19,16 @@ function Bullets({ items }) {
   return <ul className="ml-4 list-disc text-xs text-black">{items.map((x, i) => <li key={i}>{x}</li>)}</ul>;
 }
 
+function Numbered({ items }) {
+  if (!items?.length) return <p className="text-xs text-slate-500">—</p>;
+  return <ol className="ml-4 list-decimal text-xs text-black">{items.map((x, i) => <li key={i}>{x}</li>)}</ol>;
+}
+
 function DiagnosesPage({ plan, d, o, allInterventions, i }) {
   const factors = (d.related_to || "").split(/[,;]\s*/).filter(Boolean);
   const characteristics = (d.evidence || "").split(/[,;]\s*/).filter(Boolean);
   const indicators = o.indicators || [];
-  const allActivities = allInterventions.flatMap(itv => itv.activities || []);
+  const scaleLegend = o.scale_legend || [];
   return <div className={`border border-black ${i > 0 ? "break-before-page mt-4" : ""}`}>
     <table className="w-full border-collapse text-xs">
       <tbody>
@@ -37,11 +42,9 @@ function DiagnosesPage({ plan, d, o, allInterventions, i }) {
             </div>
           </td>
           <td className="align-top" style={{ width: "50%", border: "1px solid #000" }}>
-            <SubHeader>Intervenciones: (NIC) — Mínimo 3</SubHeader>
+            <SubHeader>Intervención: (NIC)</SubHeader>
             <div className="p-2 text-black">
-              <ul className="ml-4 list-disc">
-                {allInterventions.map((itv, j) => <li key={j}><b>{itv.nic || "—"}</b> {itv.code && `(${itv.code})`}</li>)}
-              </ul>
+              {allInterventions.map((itv, j) => <p key={j}><b>NIC {j + 1}:</b> {itv.nic || "—"} {itv.code && `(${itv.code})`}</p>)}
             </div>
           </td>
         </tr>
@@ -54,8 +57,13 @@ function DiagnosesPage({ plan, d, o, allInterventions, i }) {
             <div className="p-2"><Bullets items={characteristics} /></div>
           </td>
           <td className="align-top" style={{ border: "1px solid #000" }}>
-            <SubHeader>Actividades (de todas las intervenciones, ordenadas por importancia):</SubHeader>
-            <div className="p-2"><Bullets items={allActivities} /></div>
+            <SubHeader>Actividades:</SubHeader>
+            <div className="space-y-2 p-2">
+              {allInterventions.map((itv, j) => <div key={j}>
+                <p className="font-bold text-black">NIC {j + 1}: {itv.nic || "—"}</p>
+                <Numbered items={itv.activities} />
+              </div>)}
+            </div>
           </td>
         </tr>
         {/* Row 3 */}
@@ -70,9 +78,13 @@ function DiagnosesPage({ plan, d, o, allInterventions, i }) {
           <td className="align-top" style={{ border: "1px solid #000" }}>
             <SubHeader>Indicadores / Escala de Medición / Puntuación Diana</SubHeader>
             <div className="p-2 text-black">
+              <p className="font-bold">Indicadores:</p>
               <Bullets items={indicators} />
-              <p className="mt-2">Escala: Inicial {o.scale_initial || "—"} → Esperada {o.scale_expected || "—"}</p>
-              <p className="mt-1 font-bold">Puntuación Diana: {plan.diana_score || "—"}</p>
+              {scaleLegend.length > 0 && <>
+                <p className="mt-2 font-bold">Escala de medición:</p>
+                <p className="whitespace-pre-line">{scaleLegend.join("\n")}</p>
+              </>}
+              <p className="mt-2 font-bold">Puntuación diana: {o.scale_initial || "—"} → {o.scale_expected || "—"}</p>
             </div>
           </td>
         </tr>
