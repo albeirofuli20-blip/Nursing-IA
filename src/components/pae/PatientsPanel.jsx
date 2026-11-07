@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import PatientList from "@/components/pae/PatientList";
 import StructuredCapture from "@/components/pae/StructuredCapture";
 
-export default function PatientsPanel({ patients, plans, guides, refresh }) {
+export default function PatientsPanel({ patients, plans, guides, fichas = [], refresh }) {
   const [view, setView] = useState("list");
   const [preselectedPatientId, setPreselectedPatientId] = useState("");
   const [forceNew, setForceNew] = useState(false);
@@ -56,6 +56,7 @@ export default function PatientsPanel({ patients, plans, guides, refresh }) {
       <PatientList
         patients={patients}
         plans={plans}
+        fichas={fichas}
         onChanged={refresh}
         onGeneratePAE={startCapture}
       />

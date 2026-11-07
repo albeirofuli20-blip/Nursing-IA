@@ -1,0 +1,400 @@
+{
+  "name": "SivigilaFicha",
+  "type": "object",
+  "properties": {
+    "codigo_evento": {
+      "type": "string",
+      "enum": [
+        "210 - Dengue",
+        "220 - Dengue grave",
+        "580 - Mortalidad por dengue"
+      ],
+      "enumColors": [
+        "blue",
+        "red",
+        "purple"
+      ]
+    },
+    "consecutivo": {
+      "type": "string"
+    },
+    "fecha_notificacion": {
+      "type": "string",
+      "format": "date"
+    },
+    "semana_epidemiologica": {
+      "type": "string"
+    },
+    "upgd": {
+      "type": "string"
+    },
+    "nombre_ips": {
+      "type": "string"
+    },
+    "codigo_ips": {
+      "type": "string"
+    },
+    "departamento": {
+      "type": "string"
+    },
+    "municipio": {
+      "type": "string"
+    },
+    "barrio": {
+      "type": "string"
+    },
+    "tipo_documento": {
+      "type": "string",
+      "enum": [
+        "RC",
+        "TI",
+        "CC",
+        "CE",
+        "PA",
+        "AS",
+        "MS"
+      ],
+      "default": "CC"
+    },
+    "numero_documento": {
+      "type": "string"
+    },
+    "primer_nombre": {
+      "type": "string"
+    },
+    "segundo_nombre": {
+      "type": "string"
+    },
+    "primer_apellido": {
+      "type": "string"
+    },
+    "segundo_apellido": {
+      "type": "string"
+    },
+    "edad": {
+      "type": "number"
+    },
+    "unidad_medida_edad": {
+      "type": "string",
+      "enum": [
+        "A\u00f1os",
+        "Meses",
+        "D\u00edas",
+        "Horas"
+      ],
+      "default": "A\u00f1os"
+    },
+    "sexo": {
+      "type": "string",
+      "enum": [
+        "M",
+        "F",
+        "Indeterminado"
+      ],
+      "default": "Indeterminado"
+    },
+    "gestante": {
+      "type": "boolean",
+      "default": false
+    },
+    "regimen": {
+      "type": "string",
+      "enum": [
+        "Contributivo",
+        "Subsidiado",
+        "Especial",
+        "No afiliado"
+      ],
+      "default": "Contributivo"
+    },
+    "eps": {
+      "type": "string"
+    },
+    "paciente_hospitalizado": {
+      "type": "boolean",
+      "default": false
+    },
+    "fecha_hospitalizacion": {
+      "type": "string",
+      "format": "date"
+    },
+    "fecha_inicio_sintomas": {
+      "type": "string",
+      "format": "date"
+    },
+    "fecha_consulta": {
+      "type": "string",
+      "format": "date"
+    },
+    "fiebre": {
+      "type": "boolean",
+      "default": false
+    },
+    "cefalea": {
+      "type": "boolean",
+      "default": false
+    },
+    "dolor_retroocular": {
+      "type": "boolean",
+      "default": false
+    },
+    "mialgia": {
+      "type": "boolean",
+      "default": false
+    },
+    "artralgia": {
+      "type": "boolean",
+      "default": false
+    },
+    "exantema": {
+      "type": "boolean",
+      "default": false
+    },
+    "nauseas": {
+      "type": "boolean",
+      "default": false
+    },
+    "vomito": {
+      "type": "boolean",
+      "default": false
+    },
+    "dolor_abdominal_intenso": {
+      "type": "boolean",
+      "default": false
+    },
+    "vomito_persistente": {
+      "type": "boolean",
+      "default": false
+    },
+    "sangrado_mucosas": {
+      "type": "boolean",
+      "default": false
+    },
+    "letargia": {
+      "type": "boolean",
+      "default": false
+    },
+    "hepatomegalia": {
+      "type": "boolean",
+      "default": false
+    },
+    "acumulacion_liquidos": {
+      "type": "boolean",
+      "default": false
+    },
+    "lipotimia": {
+      "type": "boolean",
+      "default": false
+    },
+    "clasificacion_inicial": {
+      "type": "string",
+      "enum": [
+        "Sospechoso",
+        "Probable",
+        "Confirmado",
+        "Descartado"
+      ],
+      "default": "Sospechoso"
+    },
+    "clasificacion_final": {
+      "type": "string",
+      "enum": [
+        "Dengue sin signos de alarma",
+        "Dengue con signos de alarma",
+        "Dengue grave",
+        "No aplica"
+      ],
+      "enumColors": [
+        "blue",
+        "yellow",
+        "red",
+        "gray"
+      ],
+      "default": "No aplica"
+    },
+    "ns1": {
+      "type": "string",
+      "enum": [
+        "Negativo",
+        "Positivo",
+        "Pendiente",
+        "No realizada"
+      ],
+      "default": "No realizada"
+    },
+    "igm": {
+      "type": "string",
+      "enum": [
+        "Negativo",
+        "Positivo",
+        "Pendiente",
+        "No realizada"
+      ],
+      "default": "No realizada"
+    },
+    "igg": {
+      "type": "string",
+      "enum": [
+        "Negativo",
+        "Positivo",
+        "Pendiente",
+        "No realizada"
+      ],
+      "default": "No realizada"
+    },
+    "pcr": {
+      "type": "string",
+      "enum": [
+        "Negativo",
+        "Positivo",
+        "Pendiente",
+        "No realizada"
+      ],
+      "default": "No realizada"
+    },
+    "aislamiento_viral": {
+      "type": "string",
+      "enum": [
+        "Negativo",
+        "Positivo",
+        "Pendiente",
+        "No realizada"
+      ],
+      "default": "No realizada"
+    },
+    "fecha_toma_muestra": {
+      "type": "string",
+      "format": "date"
+    },
+    "resultado_final": {
+      "type": "string",
+      "enum": [
+        "Confirmado por laboratorio",
+        "Confirmado por nexo epidemiol\u00f3gico",
+        "Descartado",
+        "En estudio"
+      ],
+      "enumColors": [
+        "red",
+        "yellow",
+        "green",
+        "gray"
+      ],
+      "default": "En estudio"
+    },
+    "estado_notificacion": {
+      "type": "string",
+      "enum": [
+        "Notificado",
+        "En estudio",
+        "Ajustado",
+        "Cerrado"
+      ],
+      "enumColors": [
+        "blue",
+        "yellow",
+        "purple",
+        "green"
+      ],
+      "default": "Notificado"
+    },
+    "tipo_ajuste": {
+      "type": "string",
+      "enum": [
+        "Sin ajuste",
+        "Confirmado por laboratorio",
+        "Confirmado por nexo",
+        "Descartado",
+        "Cambio de clasificaci\u00f3n"
+      ],
+      "default": "Sin ajuste"
+    },
+    "fecha_ajuste": {
+      "type": "string",
+      "format": "date"
+    },
+    "notificado_oportunamente": {
+      "type": "boolean",
+      "default": false
+    },
+    "horas_hasta_notificacion": {
+      "type": "number"
+    },
+    "paciente_id": {
+      "type": "string"
+    },
+    "care_plan_id": {
+      "type": "string"
+    },
+    "notificador": {
+      "type": "string"
+    },
+    "notificador_email": {
+      "type": "string"
+    },
+    "observaciones": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "codigo_evento",
+    "fecha_notificacion",
+    "fecha_inicio_sintomas",
+    "tipo_documento",
+    "numero_documento"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
