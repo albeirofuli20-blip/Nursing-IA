@@ -12,7 +12,6 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Home from '@/pages/Home';
-import SivigilaDengue from '@/pages/SivigilaDengue';
 import PlanDocument from '@/pages/PlanDocument';
 import OAuthConsent from '@/pages/OAuthConsent';
 
@@ -48,9 +47,7 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/oauth/consent" element={<OAuthConsent />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/" element={<SivigilaDengue />} />
-        <Route path="/sivigila" element={<SivigilaDengue />} />
-        <Route path="/panel" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/plan/:id" element={<PlanDocument />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

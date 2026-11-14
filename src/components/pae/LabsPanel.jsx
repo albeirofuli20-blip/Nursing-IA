@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { FlaskConical, Search, Star, Download, TrendingUp, AlertTriangle, ChevronDown, ChevronUp, ShieldAlert } from "lucide-react";
+import { FlaskConical, Search, Star, Download, TrendingUp, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +20,6 @@ const AI_QUESTIONS = [
 ];
 
 export default function LabsPanel() {
-  const navigate = useNavigate();
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -69,7 +67,6 @@ export default function LabsPanel() {
       <div className="grid gap-4 lg:grid-cols-2">
         {filtered.map((lab) => {
           const isExpanded = expanded === lab.id;
-          const dengueRelacionado = /dengue|ns1/i.test(lab.test_name || "");
           return (
             <div key={lab.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-3 flex items-start justify-between">
@@ -110,11 +107,6 @@ export default function LabsPanel() {
                   {isExpanded ? <><ChevronUp className="h-4 w-4" /> Ver menos</> : <><ChevronDown className="h-4 w-4" /> Ver ficha completa</>}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => exportLabToPdf(lab)} className="gap-1 text-slate-500"><Download className="h-4 w-4" /> PDF</Button>
-                {dengueRelacionado && (
-                  <Button variant="outline" size="sm" onClick={() => navigate("/sivigila")} className="gap-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50">
-                    <ShieldAlert className="h-4 w-4" /> Actualizar ficha SIVIGILA
-                  </Button>
-                )}
                 <ClinicalAiAssistant contextLabel={`Laboratorio: ${lab.test_name}`} contextData={lab} placeholder={AI_QUESTIONS} />
               </div>
 
